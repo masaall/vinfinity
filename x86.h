@@ -71,7 +71,7 @@ static inline void sti(void){
 	asm volatile("sti");
 }
 
-static inline uint64_t xchg(volatile uint64_t *addr, uint64_t newval){
+static inline uint64_t xchg(volatile uintptr_t *addr, uint64_t newval){
 
 	uint64_t result;
 

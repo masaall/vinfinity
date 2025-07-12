@@ -8,6 +8,33 @@
 #include "spinlock.h"
 #include "x86.h"
 
+void acquire(struct spinlock *lock){
+
+	pushcli();
+	if (holding(lock))
+		panic("acquire");
+
+	while (xchg((uintptr_t*)&lock->locked, 1) != 0);
+
+	__sync_synchronize();
+
+	lock->cpu = mycpu();
+}
+
+void release(struct spinlock *lock){
+
+	if (!holding(lock))
+		panic("release");
+
+	lock->cpu = 0;
+
+	__sync_synchronize();
+
+	asm volatile("movq $0, %0" : "+m" (lock->locked) : );
+
+	popcli();	
+}
+
 void getcallerpcs(void *v, uintptr_t pcs[]){
 
 	uintptr_t *rbp;

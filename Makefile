@@ -7,6 +7,7 @@ C_SRCS := \
 	lapic.c \
 	main.c \
 	mp.c \
+	pipe.c \
 	proc.c \
 	spinlock.c \
 	string.c \

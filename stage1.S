@@ -7,7 +7,7 @@ start:
 	cli
 
 	xor		%ax,%ax
-	mov 	%ax,%ds
+	mov		%ax,%ds
 	mov 	%ax,%es
 	mov 	%ax,%ss
 

@@ -178,6 +178,11 @@ void consputc(int32_t c){
 	cgaputc(c);
 }
 
+int64_t consolewrite(){
+
+	return 0;
+}
+
 void consoleinit(void){
 	
 }
