@@ -6,8 +6,8 @@ start:
 
 	cli
 
-	xor		%ax,%ax
-	mov		%ax,%ds
+	xor     %ax,%ax
+	mov     %ax,%ds
 	mov 	%ax,%es
 	mov 	%ax,%ss
 
@@ -24,37 +24,37 @@ start:
 	call	disk_read
 
 	mov 	$0x7e00,%ax
-	jmp		*%ax
+	jmp     *%ax
 
 spin:
-	jmp		spin	
+	jmp     spin	
 
 print_16:
 	lodsb	
-	or		%al,%al
-	jz		.done
-	mov 	$0x0e,%ah
-	int		$0x10
-	jmp		print_16
+	or      %al,%al
+	jz      .done
+	mov     $0x0e,%ah
+	int     $0x10
+	jmp     print_16
 
 .done:
 	ret		
 
 disk_read:
-	mov 	$0x02,%ah
-	mov 	boot_disk,%dl
-	int		$0x13
+	mov     $0x02,%ah
+	mov     boot_disk,%dl
+	int     $0x13
 
-	jc		disk_error
+	jc      disk_error
 
-	mov 	$disk_success_string,%si
-	call	print_16
+	mov     $disk_success_string,%si
+	call    print_16
 
 	ret
 
 disk_error:
-	mov 	$disk_error_string,%si
-	call	print_16
+	mov     $disk_error_string,%si
+	call    print_16
 
 	hlt	
 

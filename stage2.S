@@ -5,7 +5,7 @@ stage2:
 
 	lgdt	gdtdesc
 	movl	%cr0,%eax
-	orl		$0x1,%eax
+	orl     $0x1,%eax
 	movl	%eax,%cr0
 
 	ljmp	$0x8,$start32
@@ -24,7 +24,7 @@ start32:
 	movl	$0x1,%eax
 	cpuid
 	testl	$(1 << 6),%edx
-	jnz		pae_supported
+	jnz     pae_supported
 
 	movl	$no_pae_string,%esi
 	call	print_32
@@ -48,11 +48,11 @@ long_mode_supported:
 	movl	$boot_pml4t,%edi
 	movl	$1024,%ecx
 	xorl	%eax,%eax
-	rep		stosl 	
+	rep     stosl 	
 
 	movl	$boot_pml4t,%edi
 	movl	$boot_pdpt, 0(%edi)
-	orl		$0x3, 0(%edi)
+	orl     $0x3, 0(%edi)
 
 	movl	$boot_pdpt,%edi
 	movl	$1024,%ecx
@@ -65,7 +65,7 @@ long_mode_supported:
 	movl	$boot_pd,%edi
 	movl	$1024,%ecx
 	xorl	%eax,%eax
-	rep		stosl
+	rep     stosl
 
 	movl	$boot_pd,%edi
 	movl	$0x00000083, 0(%edi)
@@ -74,16 +74,16 @@ long_mode_supported:
 	movl	%eax,%cr3	
 
 	movl	%cr4,%eax
-	orl		$0x30,%eax
+	orl     $0x30,%eax
 	movl	%eax,%cr4
 
 	mov 	$0xc0000080,%ecx
 	rdmsr
-	or 		$(1 << 8),%eax
+	or      $(1 << 8),%eax
 	wrmsr
 
 	movl	%cr0,%eax
-	orl		$0x80000000,%eax
+	orl     $0x80000000,%eax
 	movl	%eax,%cr0
 
 	lgdt	gdtdesc64
@@ -104,7 +104,7 @@ start64:
 	call	bootmain
 	
 spin:
-	jmp		spin	
+	jmp     spin	
 
 .code32
 print_32:
@@ -116,14 +116,14 @@ print_32:
 .print_loop:
 	lodsb	
 	test 	%al,%al
-	jz 		.print_end
+	jz      .print_end
 
 	mov 	$0x1a,%ah
 
 	movw	%ax,(%ecx)
-	add		$2,%ecx
+	add     $2,%ecx
 
-	jmp		.print_loop	
+	jmp     .print_loop	
 
 .print_end:	
 	movl	%ebp,%esp
@@ -138,14 +138,14 @@ print_64:
 .print_loop64:
 	lodsb	
 	test 	%al,%al
-	jz 		.print_end64
+	jz      .print_end64
 
 	mov 	$0x1a,%ah
 
 	movw	%ax,(%rcx)
-	add		$2,%rcx
+	add     $2,%rcx
 
-	jmp		.print_loop64	
+	jmp     .print_loop64	
 
 .print_end64:	
 	ret	
