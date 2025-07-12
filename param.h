@@ -1,0 +1,3 @@
+
+
+#define NCPU		8
