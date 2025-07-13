@@ -31,6 +31,7 @@ struct cpu 	*mycpu(void);
 void		acquire(struct spinlock*);
 void 		getcallerpcs(void *v, uint64_t pcs[]);
 int32_t 	holding(struct spinlock*);
+void 		initlock(struct spinlock*, char*);
 void		pushcli(void);
 void		popcli(void);
 void		release(struct spinlock*);

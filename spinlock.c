@@ -8,6 +8,12 @@
 #include "spinlock.h"
 #include "x86.h"
 
+void initlock(struct spinlock *lock, char *name){
+	lock->name = name;
+	lock->locked = 0;
+	lock->cpu = 0;
+}
+
 void acquire(struct spinlock *lock){
 
 	pushcli();

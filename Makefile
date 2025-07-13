@@ -2,6 +2,8 @@
 
 C_SRCS := \
 	console.c \
+	file.c \
+	fs.c \
 	ioapic.c \
 	kalloc.c \
 	lapic.c \
@@ -9,11 +11,12 @@ C_SRCS := \
 	mp.c \
 	pipe.c \
 	proc.c \
+	sleeplock.c \
 	spinlock.c \
 	string.c \
 	vm.c \
 
-S_SRCS := entry.S
+S_SRCS := entry.S swtch.S
 OBJS := $(C_SRCS:.c=.o) $(S_SRCS:.S=.o)
 
 CC64 = /opt/x86_64-elf/bin/x86_64-elf-gcc

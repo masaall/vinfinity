@@ -2,10 +2,19 @@
 #include "types.h"
 #include "defs.h"
 #include "memlayout.h"
+#include "fs.h"
+#include "spinlock.h"
+#include "sleeplock.h"
+#include "file.h"
 #include "x86.h"
 #include "va_list.h"
 
 static int32_t panicked = 0;
+
+static struct {
+	struct spinlock lock;
+	int32_t locking;
+} cons;
 
 static void consputc(int32_t);
 
@@ -35,9 +44,13 @@ void printint(int64_t xx, int32_t base, int32_t sign){
 
 void cprintf(char *fmt, ...){
 
-	int32_t i, c;
+	int32_t i, c, locking;
 	char *s;
 	va_list ap;
+
+	locking = cons.locking;
+	if (locking)
+		acquire(&cons.lock);
 
 	if (fmt == 0)
 		panic("null fmt");
@@ -97,6 +110,9 @@ void cprintf(char *fmt, ...){
 	}		
 
 	va_end(ap);
+
+	if (locking)
+		release(&cons.lock);
 }
 
 #define BACKSPACE 0x100
@@ -178,9 +194,14 @@ void consputc(int32_t c){
 	cgaputc(c);
 }
 
-int64_t consolewrite(){
+int64_t consolewrite(struct inode *ip, char *buf, int64_t n){
 
-	return 0;
+	int64_t i;
+
+	for (i = 0; i < n; i++)
+		consputc(buf[i] & 0xff);
+
+	return n;
 }
 
 void consoleinit(void){
