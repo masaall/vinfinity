@@ -53,6 +53,7 @@ void readsect(void *dst, uint64_t offset){
 
 	waitdisk();
 	insl(0x1f0, dst, SECTSIZE/4);
+//	insq(0x1f0, dst, SECTSIZE/8);
 }
 
 void readseg(uint8_t *pa, uint64_t count, uint64_t offset){
@@ -63,7 +64,7 @@ void readseg(uint8_t *pa, uint64_t count, uint64_t offset){
 
 	pa -= offset % SECTSIZE;
 
-	offset = (offset / SECTSIZE) + 35;
+	offset = (offset / SECTSIZE) + 35;	// first sector (mbr) at sector 0
 
 	for (; pa < epa; pa += SECTSIZE, offset++)
 		readsect(pa, offset);

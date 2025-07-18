@@ -1,9 +1,11 @@
 
 
 C_SRCS := \
+	bio.c \
 	console.c \
 	file.c \
 	fs.c \
+	ide.c \
 	ioapic.c \
 	kalloc.c \
 	lapic.c \
@@ -17,7 +19,8 @@ C_SRCS := \
 	vm.c \
 
 S_SRCS := entry.S swtch.S
-OBJS := $(C_SRCS:.c=.o) $(S_SRCS:.S=.o)
+#OBJS := $(C_SRCS:.c=.o) $(S_SRCS:.S=.o)
+OBJS := $(S_SRCS:.S=.o) $(C_SRCS:.c=.o)
 
 CC64 = /opt/x86_64-elf/bin/x86_64-elf-gcc
 LD64 = /opt/x86_64-elf/bin/x86_64-elf-ld

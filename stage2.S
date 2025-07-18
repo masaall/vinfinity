@@ -51,8 +51,7 @@ long_mode_supported:
 	rep     stosl 	
 
 	movl	$boot_pml4t,%edi
-	movl	$boot_pdpt, 0(%edi)
-	orl     $0x3, 0(%edi)
+	movl	$(boot_pdpt + 3), 0(%edi)
 
 	movl	$boot_pdpt,%edi
 	movl	$1024,%ecx

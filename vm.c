@@ -20,11 +20,11 @@ void seginit(void){
 	lgdt(c->gdt, sizeof(c->gdt));	
 }
 
-uintptr_t *walkpage(uintptr_t *pml4, const void *va, int alloc){
+uintptr_t *walkpage(uintptr_t *pml4, const void *va, int32_t alloc){
 
 	uintptr_t *pml4e, *pdpte, *pde;
 
-	// pml4
+	// current = pml4
 	uintptr_t *current = pml4;
 	pml4e = &current[PML4X(va)];
 	if (!(*pml4e & PTE_P)){
@@ -35,7 +35,7 @@ uintptr_t *walkpage(uintptr_t *pml4, const void *va, int alloc){
 		*pml4e = V2P(pdpt) | PTE_P | PTE_W;
 	}
 
-	// pdpt
+	// current = pdpt
 	current = P2V(PTE_ADDR(*pml4e));
 	pdpte = &current[PDPTX(va)];
 	if (!(*pdpte & PTE_P)){
@@ -46,7 +46,7 @@ uintptr_t *walkpage(uintptr_t *pml4, const void *va, int alloc){
 		*pdpte = V2P(pgdir) | PTE_P | PTE_W;
 	}
 
-	// pagedir
+	// current = pagedir
 	current = P2V(PTE_ADDR(*pdpte));
 	pde = &current[PDX(va)];
 	if (!(*pde & PTE_P)){
@@ -57,12 +57,12 @@ uintptr_t *walkpage(uintptr_t *pml4, const void *va, int alloc){
 		*pde = V2P(pgtab) | PTE_P | PTE_W;
 	}
 
-	// pagetab
+	// current = pagetab
 	current = P2V(PTE_ADDR(*pde));
 	return &current[PTX(va)];
 }
 
-int32_t mappages(uintptr_t *pml4, void *va, uintptr_t size, uintptr_t pa, int64_t perm){
+int32_t mappages(uintptr_t *pml4, void *va, uintptr_t size, uintptr_t pa, int32_t perm){
 
 	char *a, *last;
 	uintptr_t *pte;

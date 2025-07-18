@@ -17,6 +17,20 @@ static inline void insl(int32_t port, void *addr, int32_t cnt){
 				 "memory", "cc");
 }
 
+static inline void insq(int64_t port, void *addr, int64_t cnt){
+	asm volatile("cld; rep insq" :
+				 "=D" (addr), "=c" (cnt) :
+				 "d" (port), "0" (addr), "1" (cnt) :
+				 "memory", "cc");
+}
+
+static inline void outsl(int32_t port, const void *addr, int32_t cnt){
+	asm volatile("cld; rep outsl" :
+				 "=S" (addr), "=c" (cnt) :
+				 "d" (port), "0" (addr), "1" (cnt) :
+				 "cc");
+}
+
 static inline void stosb(void *addr, int8_t data, int64_t cnt){
 	asm volatile("cld; rep stosb" :
 				 "=D" (addr), "=c" (cnt) :
@@ -38,7 +52,7 @@ static inline void stosq(void *addr, int64_t data, int64_t cnt){
 				 "memory", "cc");
 }
 
-static inline void lcr3(uint64_t val){
+static inline void lcr3(uintptr_t val){
 	asm volatile("movq %0,%%cr3" : : "r" (val));
 }
 

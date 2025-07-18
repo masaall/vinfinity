@@ -1,8 +1,11 @@
 
 #include "types.h"
 #include "defs.h"
+#include "param.h"
 #include "memlayout.h"
+#include "mmu.h"
 #include "fs.h"
+#include "proc.h"
 #include "spinlock.h"
 #include "sleeplock.h"
 #include "file.h"
@@ -93,6 +96,10 @@ void cprintf(char *fmt, ...){
 					break;	
 			}
 			break;	
+		case 'c':
+			int32_t ch = va_arg(ap, int32_t);
+			consputc(ch);
+			break;	
 		case 's':
 			if ((s = va_arg(ap, char*)) == 0)
 				s = "null";
@@ -139,6 +146,27 @@ void panic(char *s){
 	uintptr_t rbp;
 	asm volatile("mov %%rbp,%0" : "=r" (rbp) : );
 	cprintf("panic: rbp %p \n", rbp);
+
+	uintptr_t rbp1;
+	asm volatile("mov (%%rbp),%0" : "=r" (rbp1) :);
+	cprintf("panic: rbp1 %p \n", rbp1);
+
+	uintptr_t rsp;
+	asm volatile("mov %%rsp,%0" : "=r" (rsp) : );
+	cprintf("panic: rsp %p \n", rsp);
+
+	uintptr_t rsp1;
+	asm volatile("mov (%%rsp),%0" : "=r" (rsp1) :);
+	cprintf("panic: rsp1 %p \n", rsp1);
+
+	uintptr_t rsp2;
+	asm volatile("lea 8(%%rsp),%0" : "=r" (rsp2) :);
+	cprintf("panic: rsp2 %p \n", rsp2);
+
+	uintptr_t rdi;
+	asm volatile("mov %%rdi,%0" : "=r" (rdi) :);
+	cprintf("panic: rdi %p \n", rdi);
+	
 	cprintf("panic: &s %p \n", &s);
 
 	cli();
@@ -194,12 +222,54 @@ void consputc(int32_t c){
 	cgaputc(c);
 }
 
-int64_t consolewrite(struct inode *ip, char *buf, int64_t n){
+#define INPUT_BUF 128
+struct {
+	char buf[INPUT_BUF];
+	uint32_t r;	// read index
+	uint32_t w;	// write index
+	uint32_t e;	// edit index
+} input;
+
+int64_t consoleread(struct inode *in, char *dst, int64_t n){
+
+	int64_t target;
+	int32_t c;
+
+	target = n;
+	iunlock(in);
+	acquire(&cons.lock);
+	while (n > 0){
+		while (input.r == input.w){
+			if (myproc()->killed){
+				release(&cons.lock);
+				ilock(in);
+				return -1;
+			}
+			sleep(&input.r, &cons.lock);
+		}
+		c = input.buf[input.r++ % INPUT_BUF];
+
+		*dst++ = c;
+		--n;
+		if (c == '\n')
+			break;
+	}
+	release(&cons.lock);
+	ilock(in);
+
+	return target - n;
+}
+
+int64_t consolewrite(struct inode *in, char *buf, int64_t n){
 
 	int64_t i;
 
+	iunlock(in);
+	acquire(&cons.lock);
 	for (i = 0; i < n; i++)
 		consputc(buf[i] & 0xff);
+	release(&cons.lock);
+	ilock(in);	
 
 	return n;
 }

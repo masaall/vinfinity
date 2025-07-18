@@ -14,8 +14,7 @@ entry:
 	rep     stosq
 
 	movq	$V2P_WO(pml4t),%rdi
-	movq	$V2P_WO(pdpt),0(%rdi)
-	orq 	$0x3,0(%rdi)
+	movq	$V2P_WO(pdpt + 3),0(%rdi)
 
 	movq	$V2P_WO(pdpt),%rdi
 	movq	$512,%rcx
@@ -35,8 +34,7 @@ entry:
 	movq	$0x00200083,8(%rdi)
 
 	movq	$V2P_WO(pml4t),%rdi
-	movq	$V2P_WO(pdpt),4088(%rdi)
-	orq     $0x3,4088(%rdi)
+	movq	$V2P_WO(pdpt + 3),4088(%rdi)
 
 	movq	$V2P_WO(pdpt),%rdi
 	movq	$V2P_WO(pd + 3),4080(%rdi)

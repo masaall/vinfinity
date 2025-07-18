@@ -6,12 +6,12 @@ struct file {
 	char writable;
 	struct pipe *pipe;
 	struct inode *ip;
-	uint64_t off;
+	uint32_t off;
 };
 
 struct inode {
-	uint64_t dev;		// device number
-	uint64_t inum;		// inode number
+	uint32_t dev;		// device number
+	uint32_t inum;		// inode number
 	int32_t ref;		// reference count
 	struct sleeplock lock;
 	int32_t valid;		// inode has been read from disk?
@@ -20,6 +20,6 @@ struct inode {
 	short major;
 	short minor;
 	short nlink;
-	uint64_t size;		// 
-	uint64_t addrs[NDIRECT+1];
+	uint32_t size;		// size of file (bytes)
+	uint32_t addrs[NDIRECT+1];
 };
