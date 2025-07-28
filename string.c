@@ -7,14 +7,14 @@ void *memset(void *dst, int32_t c, size_t n){
 	c &= 0xff;
 
 	if (((uintptr_t)dst % sizeof(uint64_t)) == 0 && (n % sizeof(uint64_t)) == 0){
-		uint64_t pattern = (uint8_t)c;
+		uint64_t pattern = c;
 		pattern = (pattern << 56) | (pattern << 48) | (pattern << 40)
 				| (pattern << 32) | (pattern << 24) | (pattern << 16)
 				| (pattern << 8) | pattern;
-		stosq((uint64_t*)dst, pattern, n/sizeof(uint64_t));		
+		stosq((uintptr_t*)dst, pattern, n/sizeof(uint64_t));		
 	}
 	else if (((uintptr_t)dst % sizeof(uint32_t)) == 0 && (n % sizeof(uint32_t)) == 0){
-		uint32_t pattern = (uint8_t)c;
+		uint32_t pattern = c;
 		pattern = (pattern << 24) | (pattern << 16) | (pattern << 8)
 				| pattern;
 		stosl((uint32_t*)dst, pattern, n/sizeof(uint32_t));	

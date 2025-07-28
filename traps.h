@@ -20,7 +20,7 @@
 #define T_MCHK		   18		// machine check
 #define T_SIMDERR      19		// SIMD floating point error
 
-#define T_SYSCALL      64		// system call
+#define T_SYSCALL      127		// system call
 #define T_DEFAULT 	  500		// cathall
 
 #define T_IRQ0		   32		// 

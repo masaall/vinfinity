@@ -42,8 +42,8 @@ entry:
 	movq 	$V2P_WO(pml4t),%rax
 	movq	%rax,%cr3
 
-	movq	$(stack + 65536),%rsp
-#	movq	$(stack + 4096),%rsp
+#	movq	$(stack + 65536),%rsp
+	movq	$(stack + 4096),%rsp
 
 	mov 	$main,%rax
 	jmp     *%rax

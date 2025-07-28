@@ -5,70 +5,69 @@
 #include "mmu.h"
 #include "proc.h"
 #include "memlayout.h"
+//#include "gdt.h"
 #include "x86.h"
 
 extern char data[];
 uintptr_t *kpml4;
+/*
+void gdtinstall(void){
+	gdt.pointer.limit = sizeof(gdt.entries) + sizeof(gdt.tss_extra) - 1;
+	gdt.pointer.base = (uintptr_t)gdt.entries;	
 
-void seginit(void){
-
-	struct cpu *c;
-
-	c = mycpu();
-	c->gdt[SEG_KCODE] = SEG64(STA_X|STA_R, 0, 0, 0, 1);
-	c->gdt[SEG_KDATA] = SEG64(STA_W, 0, 0, 0, 0);	
-	lgdt(c->gdt, sizeof(c->gdt));	
+	asm volatile("lgdt %0" : : "m" (gdt.pointer));
 }
+*/
 
-uintptr_t *walkpage(uintptr_t *pml4, const void *va, int32_t alloc){
+uintptr_t *walkpage(uintptr_t *pml4, const void *va, int alloc){
 
 	uintptr_t *pml4e, *pdpte, *pde;
 
 	// current = pml4
 	uintptr_t *current = pml4;
-	pml4e = &current[PML4X(va)];
+	pml4e = current + PML4X(va);
 	if (!(*pml4e & PTE_P)){
 		if (!alloc) return 0;
 		uintptr_t *pdpt = (uintptr_t*)kalloc();
 		if (!pdpt) return 0;
 		memset(pdpt, 0, PGSIZE);
-		*pml4e = V2P(pdpt) | PTE_P | PTE_W;
+		*pml4e = V2P(pdpt) | PTE_P | PTE_W | PTE_U;	
 	}
 
 	// current = pdpt
 	current = P2V(PTE_ADDR(*pml4e));
-	pdpte = &current[PDPTX(va)];
+	pdpte = current + PDPTX(va);
 	if (!(*pdpte & PTE_P)){
 		if (!alloc) return 0;
 		uintptr_t *pgdir = (uintptr_t*)kalloc();
 		if (!pgdir) return 0;
 		memset(pgdir, 0, PGSIZE);
-		*pdpte = V2P(pgdir) | PTE_P | PTE_W;
+		*pdpte = V2P(pgdir) | PTE_P | PTE_W | PTE_U;
 	}
 
 	// current = pagedir
 	current = P2V(PTE_ADDR(*pdpte));
-	pde = &current[PDX(va)];
+	pde = current + PDX(va);
 	if (!(*pde & PTE_P)){
 		if (!alloc) return 0;
 		uintptr_t *pgtab = (uintptr_t*)kalloc();
 		if (!pgtab) return 0;
 		memset(pgtab, 0, PGSIZE);
-		*pde = V2P(pgtab) | PTE_P | PTE_W;
+		*pde = V2P(pgtab) | PTE_P | PTE_W | PTE_U;
 	}
 
 	// current = pagetab
 	current = P2V(PTE_ADDR(*pde));
-	return &current[PTX(va)];
+	return current + PTX(va);
 }
 
-int32_t mappages(uintptr_t *pml4, void *va, uintptr_t size, uintptr_t pa, int32_t perm){
+int mappages(uintptr_t *pml4, void *va, uintptr_t size, uintptr_t pa, int perm){
 
 	char *a, *last;
 	uintptr_t *pte;
-	uint64_t pages_mapped = 0;
+	uint32_t pages_mapped = 0;
 
-	a = (char*)PGROUNDDOWN((uintptr_t)va);
+	a = (char*)(uintptr_t)va;
 	last = (char*)PGROUNDDOWN(((uintptr_t)va) + size - 1);
 	for (; ; a += PGSIZE, pa += PGSIZE){
 		if ((pte = walkpage(pml4, a, 1)) == 0)
@@ -80,7 +79,7 @@ int32_t mappages(uintptr_t *pml4, void *va, uintptr_t size, uintptr_t pa, int32_
 		if (a == last)
 			break;		
 	}
-	cprintf("mapped %ld pages\n", pages_mapped);
+//	cprintf("mapped %d pages\n", pages_mapped);
 	return 0;
 }
 
@@ -105,7 +104,7 @@ uintptr_t *setupkvm(void){
 		return 0;
 
 	memset(pml4, 0, PGSIZE);
-	for (k = kmap; k < &kmap[NELEM(kmap)]; k++)
+	for (k = kmap; k < kmap + NELEM(kmap); k++)
 		if (mappages(pml4, k->virt, k->phys_end - k->phys_start,
 				k->phys_start, k->perm) < 0){
 		return 0;				
@@ -120,4 +119,55 @@ void kvmalloc(void){
 
 void switchkvm(void){
 	lcr3(V2P(kpml4));
+}
+
+void switchuvm(struct proc *p){
+	if (p == 0)
+		panic("switchuvm: no process");
+	if (p->kstack == 0)
+		panic("switchuvm: no kstack");
+	if (p->pml4 == 0)
+		panic("switchuvm: no pml4");		
+
+	pushcli();
+
+	tssinstall(p);
+
+/*	uintptr_t addr = (uintptr_t)&gdt.tss;
+
+	gdt.entries[5].limit_low = sizeof(gdt.tss);
+	gdt.entries[5].base_low = addr & 0xffff;
+	gdt.entries[5].base_middle = (addr >> 16) & 0xff;
+	gdt.entries[5].base_high = (addr >> 24) & 0xff;
+	gdt.tss_extra.base_highest = (addr >> 32) & 0xffffffff;
+	gdt.tss.iomb = sizeof(gdt.tss);
+
+	gdt.tss.rsp[0] = (uintptr_t)p->kstack + KSTACKSIZE;
+
+//	asm volatile("ltr %0" : : "r" ((uint16_t)0x2b));
+
+	asm volatile(
+			"mov $0x10, %%ax\n"
+			"mov %%ax, %%ds\n"
+			"mov %%ax, %%es\n"
+			"mov %%ax, %%ss\n"
+			"mov $0x2b, %%ax\n"
+			"ltr %%ax\n"
+			::: "rax", "memory"	
+	);
+*/
+	lcr3(V2P(p->pml4));
+	popcli();	
+}
+
+void inituvm(uintptr_t *pml4, char *init, uintptr_t size){
+
+	char *mem;
+
+	if (size >= PGSIZE)
+		panic("inituvm: more than a page");
+	mem = kalloc();
+	memset(mem, 0, PGSIZE);
+	mappages(pml4, 0, PGSIZE, V2P(mem), PTE_W|PTE_U);
+	memmove(mem, init, size); 
 }

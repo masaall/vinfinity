@@ -8,7 +8,7 @@
 
 #define REG_ID		0x00	// register index: ID
 #define REG_VER		0x01	// register index: version
-#define REG_TABLE	0x10	// redirectin table base
+#define REG_TABLE	0x10	// redirection table base
 
 #define INT_DISABLED	0x00010000	// interrupt disabled
 #define INT_LEVEL		0x00008000	// level-triggered
@@ -23,12 +23,12 @@ struct ioapic {
 
 volatile struct ioapic *ioapic;
 
-uint32_t ioapicread(uint32_t reg){
+uint32_t ioapicread(int32_t reg){
 	ioapic->reg = reg;
 	return ioapic->data;
 }
 
-void ioapicwrite(uint32_t reg, uint32_t data){
+void ioapicwrite(int32_t reg, int32_t data){
 	ioapic->reg = reg;
 	ioapic->data = data;
 }
@@ -41,10 +41,15 @@ void ioapicinit(void){
 	maxintr = (ioapicread(REG_VER) >> 16) & 0xff;
 	id = ioapicread(REG_VER) >> 24;
 	if (id != ioapicid)
-		cprintf("ioapicinit: id isn't equal to ioapicid; not a MP\n");	
+		cprintf("ioapicinit: id isn't equal to ioapicid; not a MP\n");
 
 	for (i = 0; i <= maxintr; i++){
 		ioapicwrite(REG_TABLE+2*i, INT_DISABLED | (T_IRQ0 + i));
 		ioapicwrite(REG_TABLE+2*i+1, 0);
 	}	
+}
+
+void ioapicenable(int32_t irq, int32_t cpunum){
+	ioapicwrite(REG_TABLE+2*irq, T_IRQ0 + irq);
+	ioapicwrite(REG_TABLE+2*irq+1, cpunum << 24);
 }

@@ -8,40 +8,18 @@
 #define SEG_KDATA	2	// kernel data + stack
 #define SEG_UCODE	3 	// user code
 #define SEG_UDATA	4 	// user data + stack
+#define SEG_TSS 	5
 
 #define NSEGS		6
-
-#ifndef __ASSEMBLER__
-
-struct segdesc {
-	uint16_t lim_15_0;		// low bits of segment limit
-	uint16_t base_15_0;		// low bits of segment base address
-	uint8_t base_23_16;		// middle bits of segment base address
-	uint8_t type : 4;		// segment type
-	uint8_t s : 1;			// 0 = system, 1 = application
-	uint8_t dpl : 2;		// descriptor privilege level
-	uint8_t p : 1;			// present
-	uint8_t lim_19_16 : 4;	// high bits of segment limit
-	uint8_t avl : 1;		// available for software use
-	uint8_t l : 1;			// 64-bit code segment
-	uint8_t db : 1;			// default operation size
-	uint8_t g : 1;			// granularity
-	uint8_t base_31_24;		// high bits of segment address
-};
-
-#define SEG64(type, base, lim, dpl, long_mode) (struct segdesc)	\
-{	((lim) >> 12) & 0xffff, (base) & 0xffff,					\
-	((base) >> 16) & 0xff, (type), 1, (dpl), 1,					\
-	((lim) >> 28) & 0xf, 0, (long_mode), !(long_mode),			\
-	1, ((base) >> 24) & 0xff }
-
-#endif
 
 #define DPL_USER	0x3
 
 #define STA_X	0x8
 #define STA_W	0x2
 #define STA_R	0x2
+
+#define STS_IG	0xe		// interrupt gate
+#define STS_TG	0xf 	// trap gate
 
 #define PML4X(va)	(((uintptr_t)(va) >> PML4SHIFT) & 0x1ff)
 #define PDPTX(va)	(((uintptr_t)(va) >> PDPTSHIFT) & 0x1ff)
@@ -73,3 +51,37 @@ struct segdesc {
 #define PTE_U		0x004
 
 #define PTE_ADDR(pg)	((uintptr_t)(pg) & ~0xfff)
+
+#ifndef __ASSEMBLER__
+
+struct gatedesc {
+	uint32_t off_15_0 : 16;
+	uint32_t selector : 16;
+
+	uint32_t zero : 8;
+	uint32_t type : 4;
+	uint32_t s : 1;
+	uint32_t dpl : 2;
+	uint32_t p : 1;
+
+	uint32_t off_31_16 : 16;
+	uint32_t off_63_32;
+	uint32_t pad;	
+} __attribute__((packed));
+
+#define SETGATE(gate, istrap, sel, off, d)		\
+{												\
+	(gate).off_15_0 = (uintptr_t)(off) & 0xffff; \
+	(gate).selector = (sel);					\
+	(gate).zero = 0; 							\
+	(gate).type = (istrap) ? STS_TG : STS_IG;	\
+	(gate).s = 0;								\
+	(gate).dpl = (d);							\
+	(gate).p = 1;								\
+	(gate).off_31_16 = (uintptr_t)(off >> 16) & 0xffff;\
+	(gate).off_63_32 = (uintptr_t)(off >> 32) & 0xffffffff;\
+	(gate).pad = 0;								\
+}
+
+
+#endif

@@ -74,7 +74,7 @@ void mpinit(void){
 				proc = (struct mpproc*)p;
 				if (ncpu < NCPU){
 					cpus[ncpu].apicid = proc->apicid;
-					cprintf("ncpu %d, apicid %d \n", ncpu, cpus[ncpu].apicid);
+//					cprintf("ncpu %d, apicid %d \n", ncpu, cpus[ncpu].apicid);
 					ncpu++;
 				}
 				p += sizeof(struct mpproc);

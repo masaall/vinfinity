@@ -29,9 +29,9 @@ void freerange(void *vstart, void *vend){
 	char *p;
 	uint32_t addr = 0;
 	p = (char*)PGROUNDUP((uintptr_t)vstart);
-	for (; p + PGSIZE < (char*)vend; p += PGSIZE, addr++)
+	for (; p + PGSIZE <= (char*)vend; p += PGSIZE, addr++)
 		kfree(p);
-	cprintf("free %ld pages \n", addr);	
+//	cprintf("free %ld pages \n", addr);	
 }
 
 void kfree(char *v){
@@ -61,6 +61,8 @@ char *kalloc(void){
 	r = kmem.freelist;
 	if (r)
 		kmem.freelist = r->next;
+	else 
+		panic("no free pages");
 	if (kmem.use_lock)
 		release(&kmem.lock);	
 

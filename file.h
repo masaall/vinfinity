@@ -23,3 +23,12 @@ struct inode {
 	uint32_t size;		// size of file (bytes)
 	uint32_t addrs[NDIRECT+1];
 };
+
+struct devsw {
+	int64_t (*read)(struct inode*, char*, int64_t);
+	int64_t (*write)(struct inode*, char*, int64_t);
+};
+
+extern struct devsw devsw[];
+
+#define CONSOLE 1

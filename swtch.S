@@ -5,7 +5,7 @@ swtch:
 	pushq	%rbx
 	pushq	%r12
 	pushq	%r13
-	pushq	%r14
+	pushq 	%r14
 	pushq	%r15
 
 	movq	%rsp,(%rdi)
@@ -17,6 +17,4 @@ swtch:
 	popq	%r12
 	popq	%rbx
 	popq	%rbp
-
 	ret	
-

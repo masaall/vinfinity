@@ -1,11 +1,15 @@
 
 #include "types.h"
 #include "defs.h"
+#include "param.h"
 #include "memlayout.h"
 #include "mmu.h"
 #include "x86.h"
 
+#include "proc.h"
 #include "fs.h"
+
+void mpmain(void) __attribute__((noreturn));
 
 extern char text[];
 extern char data[];
@@ -24,34 +28,28 @@ void screen_init(void){
 int main(void){
 	cls();
 	screen_init();
-	
-	cprintf("text %p \n", text);
-	cprintf("data %p \n", data);
-	cprintf("bss  %p \n", bss);
-	cprintf("end  %p \n", end);
-	cprintf("     %p \n", P2V(0x400000));
-	cprintf("     %p \n", P2V(PHYSTOP));
 
-	kinit1(end, P2V(0x400000));		// phys page allocator
-	kvmalloc();						// kernel page table
-	mpinit();						// detect other processor
-	seginit();						// segment descriptors
-	ioapicinit();					// interrupt controller
-	consoleinit();					// console hardware
-
-	binit();						// buffer cache
-
-	uint32_t addr[NDIRECT+1], addr1[NDIRECT+1];
-	cprintf("size %d size %d\n", sizeof(addr), sizeof(addr1));
-
-	addr[0] = 13;
-	addr1[0] = 12;
-	memmove(addr1, addr, sizeof(addr));
-	cprintf("addr %d addr1 %d \n", addr[0], addr1[0]);
-
-//	panic("end");
-
-//	kinit1(P2V(0x400000), P2V(PHYSTOP));
+	kinit1(end, P2V(0x400000));		
+	kvmalloc();					
+	mpinit();	
+	gdtinstall();	
+	picinit();							
+	ioapicinit();				
+	consoleinit();				
+	pinit();
+	tvinit();
+	binit();		
+	fileinit();
+	userinit();
+	mpmain();
 
 	for (;;);
+}
+
+void mpmain(void){
+	cprintf("\n                         vinfinity operating system");
+	cprintf("\n                                version 1.0      \n");	
+	idtinit();
+	syscall_init();
+	scheduler();
 }

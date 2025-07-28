@@ -11,6 +11,7 @@
 #include "file.h"
 #include "x86.h"
 #include "va_list.h"
+#include "traps.h"
 
 static int32_t panicked = 0;
 
@@ -47,14 +48,14 @@ void printint(int64_t xx, int32_t base, int32_t sign){
 
 void cprintf(char *fmt, ...){
 
-	int32_t i, c, locking;
+	int32_t i, c;//, locking;
 	char *s;
 	va_list ap;
 
-	locking = cons.locking;
+/*	locking = cons.locking;
 	if (locking)
 		acquire(&cons.lock);
-
+*/
 	if (fmt == 0)
 		panic("null fmt");
 
@@ -118,8 +119,8 @@ void cprintf(char *fmt, ...){
 
 	va_end(ap);
 
-	if (locking)
-		release(&cons.lock);
+//	if (locking)
+//		release(&cons.lock);
 }
 
 #define BACKSPACE 0x100
@@ -143,7 +144,7 @@ void panic(char *s){
 	int32_t i;
 	uintptr_t pcs[10];
 
-	uintptr_t rbp;
+/*	uintptr_t rbp;
 	asm volatile("mov %%rbp,%0" : "=r" (rbp) : );
 	cprintf("panic: rbp %p \n", rbp);
 
@@ -168,7 +169,7 @@ void panic(char *s){
 	cprintf("panic: rdi %p \n", rdi);
 	
 	cprintf("panic: &s %p \n", &s);
-
+*/
 	cli();
 	cprintf("lapicid %d: panic: ", lapicid());
 	cprintf(s);
@@ -230,6 +231,40 @@ struct {
 	uint32_t e;	// edit index
 } input;
 
+#define C(x)	((x) - '@')	// control x
+
+void consoleintr(int32_t (*getc)(void)){
+
+	int32_t c;
+
+	acquire(&cons.lock);
+	while ((c = getc()) >= 0){
+		switch(c){
+		case C('U'):
+		break;
+		case C('H'): case '\x7f':	// backspace
+			if (input.e != input.w){
+				input.e--;
+				consputc(BACKSPACE);
+			}
+		break;
+		default:
+			if (c != 0 && input.e - input.r < INPUT_BUF){
+				c = (c == '\r') ? '\n' : c;
+				input.buf[input.e++ % INPUT_BUF] = c;
+				consputc(c);
+				if (c == '\n' || input.e - input.r == INPUT_BUF){
+					input.w = input.e;
+					wakeup(&input.r);
+				}
+			}
+			break;	
+		}		
+	}
+	release(&cons.lock);
+	
+}
+
 int64_t consoleread(struct inode *in, char *dst, int64_t n){
 
 	int64_t target;
@@ -274,6 +309,23 @@ int64_t consolewrite(struct inode *in, char *buf, int64_t n){
 	return n;
 }
 
+int consolewrite1(char *buf, int n){
+
+	int i;
+
+	for (i = 0; i < n; i++)
+		consputc(buf[i] & 0xff);
+
+	return n;	
+}
+
 void consoleinit(void){
-	
+
+	initlock(&cons.lock, "console");
+
+	devsw[CONSOLE].write = consolewrite;
+	devsw[CONSOLE].read = consoleread;
+	cons.locking = 1;
+
+	ioapicenable(IRQ_KBD, 0);
 }
