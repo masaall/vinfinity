@@ -1,4 +1,4 @@
-A minimal 64-bit Bare-Metal OS inspired by xv6, build from scratch just for fun.
+A minimal 64-bit (x86-64) Bare-Metal OS inspired by xv6, build from scratch just for fun.
 
 Feature:
   1. Custom bootloader
