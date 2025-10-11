@@ -1,0 +1,15 @@
+
+#define EXTMEM 0x100000
+#define PHYSTOP 0x8000000
+#define DEVSPACE 0xfe000000
+
+#define KERNBASE 0xffffffff80000000
+#define KERNLINK (KERNBASE+EXTMEM)
+#define KERNDEV	 (0xffffffff00000000+DEVSPACE)
+
+#define P2V(a) (void*)((a) + KERNBASE)
+#define V2P(a) ((uintptr_t)(a) - KERNBASE)
+
+#define P2V_DEV(a)	(void*)((a) + 0xffffffff00000000)
+
+#define V2P_WO(a) ((a) - KERNBASE)
