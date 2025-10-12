@@ -126,7 +126,7 @@ int growproc(int n){
 int fork(void){
 
 	struct proc *newproc, *curproc = myproc();
-	int pid;
+	int pid, i;
 
 	if ((newproc = allocproc()) == 0)
 		return -1;
@@ -137,7 +137,12 @@ int fork(void){
 	newproc->parent = curproc;
 	memmove(newproc->regs, curproc->regs, sizeof(*curproc->regs));
 	newproc->regs->rax = 0;
-	
+
+	for (i = 0; i < NOFILE; i++)
+		if (curproc->ofile[i])
+			newproc->ofile[i] = filedup(curproc->ofile[i]);
+	newproc->cwd = idup(curproc->cwd);		
+
 	pid = newproc->pid;
 	newproc->state = RUNNABLE;
 	

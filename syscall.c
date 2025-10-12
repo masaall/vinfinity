@@ -32,12 +32,12 @@ void syscallinit(void){
 }
 
 static int (*syscalls[])(void) = {
+	[SYS_exec]	sys_exec,
 	[SYS_fork] 	sys_fork,
 	[SYS_write] sys_write,
 	[SYS_wait]	sys_wait,
 	[SYS_getpid] sys_getpid,
 	[SYS_exit] sys_exit,
-	[SYS_exec] sys_exec,
 	[SYS_sbrk] sys_sbrk,
 	[SYS_open] sys_open,
 	[SYS_mknod] sys_mknod,
@@ -45,7 +45,7 @@ static int (*syscalls[])(void) = {
 };
 
 void syscall_handler(struct regs *r){
-	
+
 	int num;
 
 	num = r->rax;

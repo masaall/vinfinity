@@ -9,11 +9,12 @@
 #include "buf.h"
 #include "x86.h" 
 
-bool havedisk1;
-struct buf *idequeue;
-
 #define IDE_CMD_READ 	0x20
 #define IDE_CMD_WRITE 	0x30
+
+
+bool havedisk1;
+struct buf *idequeue;
 
 void ideinit(void){
 
@@ -38,6 +39,8 @@ void idestart(struct buf *b){
 	outb(0x1f6, 0xe0 | (1 << 4));
 
 	if (b->flags & B_DIRTY){
+		outb(0x1f7, IDE_CMD_WRITE);
+		outsl(0x1f0, b->data, BSIZE/4);
 	} else {
 		outb(0x1f7, IDE_CMD_READ);
 	}
@@ -62,10 +65,17 @@ void ideintr(void){
 
 void iderw(struct buf *b){
 
+	if (b->dev != 0 && havedisk1 == false)
+		panic("iderw: ide disk 1 not present");
+
 	idequeue = b;
 
 	idestart(b);
 
-	if ((b->flags & B_VALID) == 0)
+	if ((b->flags & B_VALID) != B_VALID){
 		sleep(b);
+	}
+
 }
+
+

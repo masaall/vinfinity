@@ -28,4 +28,3 @@ void ioapicenable(int irq, int cpunum){
 	ioapicwrite(REG_TABLE+2*irq, T_IRQ0 + irq);
 	ioapicwrite(REG_TABLE+2*irq+1, cpunum << 24);
 }
-

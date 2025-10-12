@@ -1,11 +1,4 @@
 
-.macro _swapgs
-	cmpq $8,24(%rsp)
-	je 1f
-	swapgs
-1:
-.endm
-
 .globl isr_entry
 isr_entry:
 
@@ -99,18 +92,18 @@ syscall_entry:
 	mov %rsp,%gs:0xd8
 	mov %gs:0xd0,%rsp
 
-	pushq $0x23
-	pushq %gs:0xd8
+	push $0x23
+	push %gs:0xd8
 	push %r11
-	pushq $0x2b
+	push $0x2b
 	push %rcx
 
-	pushq $0
-	pushq $0
+	sub $8,%rsp
+	sub $8,%rsp
 
 	push %rax
 	push %rbx
-	pushq $0
+	sub $8,%rsp
 	push %rdx
 	push %rsi
 	push %rdi
@@ -119,7 +112,7 @@ syscall_entry:
 	push %r8
 	push %r9
 	push %r10
-	pushq $0
+	sub $8,%rsp
 	push %r12
 	push %r13
 	push %r14

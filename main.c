@@ -33,6 +33,7 @@ int main(void){
 	bufinit();
 	ideinit();
 	userinit();
+
 	mpmain();
 
 	for (;;);

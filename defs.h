@@ -28,6 +28,7 @@ int filewrite(struct file*, char*, int);
 // fs.c
 int dirlink(struct inode*, char*, uint32_t);
 struct inode *ialloc(uint32_t, short);
+struct inode *idup(struct inode*);
 void iinit(uint32_t);
 void ilock(struct inode*);
 void iunlock(struct inode*);

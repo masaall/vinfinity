@@ -15,7 +15,7 @@ struct you {
 
 int main(void){
 
-//	int pid, i;
+	int pid, i;
 
 	if (open("console", O_RDWR) < 0){
 		mknod("console", 1, 1);
@@ -27,7 +27,7 @@ int main(void){
 
 	printf("init starting \n");
 
-/*	for (i = 0; i < 2; i++){
+	for (i = 0; i < 2; i++){
 		pid = fork();
 		if (pid > 0){
 			printf("parent %d creating child %d\n", getpid(), pid);
@@ -40,5 +40,5 @@ int main(void){
 			printf("fork error\n");
 		}
 	}
-*/	for (;;);
+	for (;;);
 }
