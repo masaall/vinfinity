@@ -21,11 +21,10 @@ void free(void *ap){
 	Header *bp, *p;
 
 	bp = (Header*)ap - 1;
-	for (p = freep; !(bp > p && bp < p->s.ptr);){
+	for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
 		if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
 			break;
-	}
-	
+
 	if (bp + bp->s.size == p->s.ptr){
 		
 	} else {
@@ -35,7 +34,7 @@ void free(void *ap){
 		
 	} else {
 		p->s.ptr = bp;
-	}	
+	}
 }
 
 Header *morecore(uintptr_t nunits){
@@ -43,7 +42,12 @@ Header *morecore(uintptr_t nunits){
 	char *p;
 	Header *hp;
 
-	p = sbrk(nunits * sizeof(Header));
+	if (nunits < 8)
+		nunits = 8;
+
+	if ((p = sbrk(nunits * sizeof(Header))) == (char*)-1)
+		return 0;
+
 	hp = (Header*)p;
 	hp->s.size = nunits;
 	free(hp + 1);
@@ -61,15 +65,16 @@ void *malloc(uintptr_t nbytes){
 		base.s.ptr = freep = prevp = &base;
 		base.s.size = 0;
 	}
-
 	for (p = prevp->s.ptr;; p = p->s.ptr){
 		if (p->s.size >= nunits){
 			if (p->s.size == nunits){
 				prevp->s.ptr = p->s.ptr;
 			} else {
-			
+				p->s.size -= nunits;
+				p += p->s.size;
+				p->s.size = nunits;
 			}
-			return (void*)(p + 1);
+			return p + 1;
 		}
 		if (p == freep)
 			if ((p = morecore(nunits)) == 0)

@@ -30,7 +30,8 @@ int sys_sbrk(void){
 
 	n = p->regs->rdi;
 	size = p->size;
-	growproc(n);
-	
+	if (growproc(n) < 0)
+		return -1;
+
 	return size;
 }

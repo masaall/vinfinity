@@ -1,14 +1,14 @@
 
-struct gdt {
+typedef struct {
 	uint16_t limit;
 	uint16_t base_low;
 	uint8_t base_middle;
 	uint8_t access;
 	uint8_t gran;
 	uint8_t base_high;
-} __attribute__((packed));
+} __attribute__((packed)) gdt;
 
-struct tss {
+typedef struct {
 	uint32_t pad0;
 	uintptr_t rsp[3];
 	uintptr_t pad1;
@@ -16,21 +16,21 @@ struct tss {
 	uintptr_t pad2;
 	uint16_t pad3;
 	uint16_t iomb;	
-} __attribute__((packed));
+} __attribute__((packed)) tss;
 
-struct tss_ext {
+typedef struct {
 	uint32_t base_highest;
 	uint32_t pad;	
-} __attribute__((packed));
+} __attribute__((packed)) tss_ext;
 
-struct pointer {
+typedef struct {
 	uint16_t size;
 	uintptr_t base;	
-} __attribute__((packed));
+} __attribute__((packed)) pointer;
 
 struct gdtAll {
-	struct gdt entries[7];
-	struct tss_ext tss_ext;	
-	struct tss tss;
-	struct pointer pointer;
+	gdt entries[7];
+	tss_ext tss_ext;	
+	tss tss;
+	pointer pointer;
 };

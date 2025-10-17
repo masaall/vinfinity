@@ -98,12 +98,12 @@ syscall_entry:
 	push $0x2b
 	push %rcx
 
-	sub $8,%rsp
-	sub $8,%rsp
+	push $0
+	push $0
 
 	push %rax
 	push %rbx
-	sub $8,%rsp
+	push $0
 	push %rdx
 	push %rsi
 	push %rdi
@@ -112,7 +112,7 @@ syscall_entry:
 	push %r8
 	push %r9
 	push %r10
-	sub $8,%rsp
+	push $0
 	push %r12
 	push %r13
 	push %r14

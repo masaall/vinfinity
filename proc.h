@@ -14,8 +14,13 @@ extern struct cpu cpus[];
 extern int ncpu;
 
 struct context {
-	uintptr_t r15, r14, r13, r12;
-	uintptr_t rbx, rbp, rip;	
+	uintptr_t r15;
+	uintptr_t r14;
+	uintptr_t r13;
+	uintptr_t r12;
+	uintptr_t rbx;
+	uintptr_t rbp;
+	uintptr_t rip;	
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };

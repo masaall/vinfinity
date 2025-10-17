@@ -23,7 +23,6 @@ void kinit2(void *start, void *end){
 }
 
 void freerange(char *start, char *end){
-
 	start = (char*)PGUP((uintptr_t)start);
 	for (; start < end; start += PGSIZE)
 		kfree(start);
@@ -49,9 +48,8 @@ void *kalloc(void){
 	if (free){
 		freep = free->next;
 		memset(free, 0, PGSIZE);
-	} else 
-		panic("no free page");
-
+	} 
+	
 	return free;
 }
 

@@ -56,7 +56,7 @@ struct proc *allocproc(void){
 		if (p->state == UNUSED)
 			goto found;
 
-	return 0;	
+	return 0;
 found:
 	p->pid = nextpid++;
 	p->state = EMBRYO;
@@ -114,9 +114,11 @@ int growproc(int n){
 
 	size = curproc->size;
 	if (n > 0){
-		size = allocuvm(curproc->pml4t, size, size + n);
+		if ((size = allocuvm(curproc->pml4t, size, size + n)) == 0)
+			return -1;
 	} else if (n < 0) {
-		size = deallocuvm(curproc->pml4t, size, size + n);
+		if (( size = deallocuvm(curproc->pml4t, size, size + n)) == 0)
+			return -1;
 	}
 	curproc->size = size;
 	
@@ -213,7 +215,9 @@ void scheduler(void){
 			c->proc = p;
 			p->state = RUNNING;
 			switchuvm(p);
+
 			swtch(&c->context, p->context);
+
 			switchkvm();
 
 			c->proc = 0;

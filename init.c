@@ -3,16 +3,6 @@
 #include "user.h"
 #include "fcntl.h"
 
-struct me {
-	int age;
-	char *name;
-};
-
-struct you {
-	int age;
-	char *name;
-};
-
 int main(void){
 
 	int pid, i;
@@ -40,5 +30,11 @@ int main(void){
 			printf("fork error\n");
 		}
 	}
+	printf("%p \n", malloc(16));
+	printf("%p \n", malloc(16));
+	printf("%p \n", malloc(16));
+	printf("%p \n", malloc(16));
+	printf("%p \n", malloc(16));
+	
 	for (;;);
 }

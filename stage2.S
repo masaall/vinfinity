@@ -1,4 +1,6 @@
 
+#include "mmu.h"
+
 .code16
 stage2:
 
@@ -18,13 +20,13 @@ start32:
 	mov %ax,%ss	
 
 	movl $pml4t,%edi
-	movl $(pdpt+3),0(%edi)
+	movl $(pdpt+(PTE_P|PTE_W)),0(%edi)
 
 	movl $pdpt,%edi
-	movl $(pgdir+3),0(%edi)
+	movl $(pgdir+(PTE_P|PTE_W)),0(%edi)
 
 	movl $pgdir,%edi
-	movl $(0x00000083),0(%edi)
+	movl $(0x00000000+(PTE_P|PTE_W|PTE_PS)),0(%edi)
 
 	movl $pml4t,%eax
 	movl %eax,%cr3
@@ -85,10 +87,10 @@ gdtdesc1:
 	.word (gdtdesc1 - gdt1 - 1)
 	.quad gdt1
 
-.align 4096
+.align PGSIZE
 pml4t:
-	.skip 4096
+	.skip PGSIZE
 pdpt:
-	.skip 4096
+	.skip PGSIZE
 pgdir:
-	.skip 4096
+	.skip PGSIZE

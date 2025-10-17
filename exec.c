@@ -2,6 +2,7 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
+#include "mmu.h"
 #include "gdt.h"
 #include "proc.h"
 #include "fs.h"
@@ -9,10 +10,6 @@
 #include "elf.h"
 #include "irqs.h"
 #include "x86.h"
-
-void freevm1(uintptr_t *addr){
-	
-}
 
 int exec(char *path, char **argv){
 
@@ -29,6 +26,7 @@ int exec(char *path, char **argv){
 		return -1;
 	}
 	ilock(ip);
+	pml4t = 0;
 
 	if (readi(ip, (void*)&elf, 0, sizeof(elf)) != sizeof(elf))
 		goto bad;
@@ -48,6 +46,9 @@ int exec(char *path, char **argv){
 	iunlockput(ip);
 	ip = 0;
 
+	size = PGUP(size);
+	size = allocuvm(pml4t, size, size + 2*PGSIZE);
+
 	oldpml4t = curproc->pml4t;
 	curproc->pml4t = pml4t;
 	curproc->size = size;
@@ -57,5 +58,8 @@ int exec(char *path, char **argv){
 
 	return 0;
 bad:
+	if (pml4t) 
+		freevm(pml4t);
+		
 	return -1;
 }

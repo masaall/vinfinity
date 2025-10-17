@@ -14,11 +14,6 @@
 struct idt idt[256];
 extern uintptr_t vectors[];
 
-struct {
-	uint16_t size;
-	uintptr_t base;	
-} __attribute__((packed)) idtp;
-
 void picinit(void){
 	outb(IO_PIC1+1, 0xff);
 	outb(IO_PIC2+1, 0xff);
@@ -39,8 +34,14 @@ void idtinstall(void){
 	for (i = 0; i < 256; i++)
 		set_idt(i, vectors[i]);
 
-	idtp.size = sizeof(idt) - 1;
-	idtp.base = (uintptr_t)idt;
+	struct {
+		uint16_t size;
+		uintptr_t base;
+	} __attribute__((packed)) idtp = {
+		sizeof(idt) - 1,
+		(uintptr_t)idt
+	};
+
 	asm volatile("lidt %0" :: "m" (idtp));
 }
 

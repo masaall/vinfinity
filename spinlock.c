@@ -21,9 +21,9 @@ void pushcli(void){
 void popcli(void){
 
 	if (readrflags()&FL_IF)
-		panic("popcli");
+		panic("popcli 1");
 	if (--mycpu()->ncli < 0)
-		panic("popcli");
+		panic("popcli 2");
 	if (mycpu()->ncli == 0 && mycpu()->intena)
 		sti();		
 }

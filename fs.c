@@ -242,23 +242,14 @@ int dirlink(struct inode *dp, char *name, uint32_t inum){
 char *skipelem(char *path, char *name){
 
 	char *s;
-	int n;
 
 	while (path[0] == '/') path++;
-
 	if (path[0] == 0) return 0;
 
 	s = path;
 	while (path[0] != '/' && path[0] != 0) path++;
-	n = path - s;
-	
-	if (n >= DIRSIZ){
-		memmove(name, s, DIRSIZ);
-	} else {
-		memmove(name, s, n);
-		name[n] = 0;
-	}
 
+	strncpy(name, s, DIRSIZ);
 	while (path[0] == '/') path++;
 
 	return path;
