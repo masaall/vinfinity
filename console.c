@@ -2,6 +2,8 @@
 #include "types.h"
 #include "defs.h"
 #include "memlayout.h"
+#include "spinlock.h"
+#include "sleeplock.h"
 #include "fs.h"
 #include "file.h"
 #include "x86.h"
@@ -13,6 +15,11 @@
 
 uint16_t *crt = P2V(0xb8000);
 static int panicked = 0;
+
+struct {
+	struct spinlock lock;
+	int locking;
+} cons;
 
 void consputc(int c);
 
@@ -46,6 +53,9 @@ void cprintf(const char *fmt, ...){
 	va_list va;
 	char *s;
 	char ch;
+
+	if (cons.locking)
+		acquire(&cons.lock);
 
 	va_start(va, fmt);
 	for (i = 0; (c = fmt[i] & 0xff); i++){
@@ -87,6 +97,9 @@ void cprintf(const char *fmt, ...){
 		}
 	}
 	va_end(va);
+
+	if (cons.locking)
+		release(&cons.lock);
 }
 
 void panic(char *s){
@@ -139,11 +152,11 @@ void cgaputc(int c){
 		memset(crt + pos, 0, sizeof(crt[0])*(24*80 - pos));
 	}	
 
-	crt[pos] = 0x0700 | (' ' & 0xff);
 	outb(CRTPORT, 14);
 	outb(CRTPORT+1, pos >> 8);
 	outb(CRTPORT, 15);
 	outb(CRTPORT+1, pos);
+	crt[pos] = 0x0700 | (' ' & 0xff);
 }
 
 void consputc(int c){
@@ -175,6 +188,7 @@ void consintr(int (*getc)(void)){
 
 	int c;
 
+	acquire(&cons.lock);
 	while ((c = getc()) >= 0){
 		switch (c){
 		case C('H'):
@@ -189,25 +203,37 @@ void consintr(int (*getc)(void)){
 				consputc(c);
 				if (c == '\n' || input.e-input.r == INPUT_BUF){
 					input.w = input.e;
+					wakeup(&input.r);
 				}
 			}
 			break;
 		}
 	}
+
+	release(&cons.lock);
 }
 
 int consolewrite(struct inode *ip, char *addr, int n){
 
 	int i;
+
+	iunlock(ip);
+	acquire(&cons.lock);
 	for (i = 0; i < n; i++)
-		consputc(addr[i]);
+		consputc(addr[i] & 0xff);
+	release(&cons.lock);	
+	ilock(ip);
 
 	return n;	
 }
 
 void consoleinit(void){
 
+	initlock(&cons.lock, "console");
+	
 	devsw[CONSOLE].write = consolewrite;
+
+	cons.locking = 1;
 
 	ioapicenable(IRQ_KBD, 0);
 }

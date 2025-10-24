@@ -6,6 +6,8 @@
 #include "gdt.h"
 #include "proc.h"
 #include "fs.h"
+#include "spinlock.h"
+#include "sleeplock.h"
 #include "file.h"
 #include "elf.h"
 #include "irqs.h"
@@ -33,7 +35,8 @@ int exec(char *path, char **argv){
 	if (elf.magic != ELF_MAGIC)
 		goto bad;
 
-	pml4t = setupkvm();
+	if ((pml4t = setupkvm()) == 0)
+		goto bad;
 
 	size = 0;
 	for (i = 0, off = elf.phoff; i < elf.phnum; i++, off += sizeof(ph)){
@@ -41,7 +44,7 @@ int exec(char *path, char **argv){
 			goto bad;
 		size = allocuvm(pml4t, size, ph.vaddr+ph.memsz);
 		if (loaduvm(pml4t, ip, ph.vaddr, ph.offset, ph.filesz) < 0)
-			goto bad;	
+			goto bad;
 	}
 	iunlockput(ip);
 	ip = 0;

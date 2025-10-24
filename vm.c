@@ -6,6 +6,8 @@
 #include "mmu.h"
 #include "gdt.h"
 #include "proc.h"
+#include "spinlock.h"
+#include "sleeplock.h"
 #include "fs.h"
 #include "file.h"
 #include "x86.h"
@@ -61,9 +63,9 @@ int map_user(uintptr_t *pml4t, uintptr_t vaddr, uintptr_t paddr,
 
 		pgtab = P2V(PG_ADDR(pgdir[pdx]));
 		if (!(pgtab[ptx] & PTE_P)) 
-			pgtab[ptx] = paddr | PTE_P | flags;
+			pgtab[ptx] = paddr | flags;
 		else 
-			panic("map_user remap");	
+			panic("map_user remap");
 	}
 
 	return 0;
@@ -77,7 +79,7 @@ int map_kernel(uintptr_t *pml4t, uintptr_t vaddr, uintptr_t paddr,
 	uintptr_t *pdpt, *pgdir;
 
 	vend = vaddr + size;
-	for (; vaddr < vend; vaddr+=0x200000, paddr+=0x200000){
+	for (; vaddr < vend; vaddr+=HPGSIZE, paddr+=HPGSIZE){
 		pmlx = PMLX(vaddr);
 		pdpx = PDPX(vaddr);
 		pdx = PDX(vaddr);
@@ -97,22 +99,22 @@ int map_kernel(uintptr_t *pml4t, uintptr_t vaddr, uintptr_t paddr,
 
 		pgdir = P2V(PG_ADDR(pdpt[pdpx]));
 		if (!(pgdir[pdx] & PTE_P)) 
-			pgdir[pdx] = paddr | PTE_P | flags;
+			pgdir[pdx] = paddr | flags;
 		else
-			panic("map_kernel remap");	
+			panic("map_kernel remap");
 	}
-	
+
 	return 0;
 }
 
 struct kmap {
 	uintptr_t vaddr;
 	uintptr_t pstart;
-	uintptr_t pend;
+	uintptr_t size;
 	uint8_t flags;	
 } kmapp[] = {
-	{KERNBASE, 0, PHYSTOP, PTE_W|PTE_PS},
-	{KERNDEV, DEVSPACE, DEVSPACE+0x1000000, PTE_W|PTE_PS}
+	{KERNBASE, 0, PHYSTOP, PTE_P | PTE_W | PTE_PS},
+	{KERNDEV, DEVSPACE, 0x1000000, PTE_P | PTE_W | PTE_PS}
 };
 
 uintptr_t *setupkvm(void){
@@ -123,12 +125,11 @@ uintptr_t *setupkvm(void){
 	if ((pml4t = kalloc()) == 0)
 		return 0;
 	for (k = kmapp; k < &kmapp[NELEM(kmapp)]; k++)
-		if (map_kernel(pml4t, k->vaddr, k->pstart, 
-			k->pend-k->pstart, k->flags) < 0){
-				freevm(pml4t);
-				return 0;
-		}
-	
+		if (map_kernel(pml4t, k->vaddr, k->pstart, k->size, k->flags) < 0){
+			freevm(pml4t);
+		return 0;
+	 }
+
 	return pml4t;
 }
 
@@ -137,6 +138,13 @@ void switchkvm(void){
 }
 
 void switchuvm(struct proc *p){
+
+	if (p == 0)
+		panic("switchuvm");
+	if (p->kstack == 0)
+		panic("switchuvm");
+	if (p->pml4t == 0)
+		panic("switchuvm");	
 
 	pushcli();
 	tssinstall(p);
@@ -153,7 +161,7 @@ void inituvm(uintptr_t *pml4t, void *init, uintptr_t size){
 
 	char *paddr;
 	paddr = kalloc();
-	map_user(pml4t, 0, V2P(paddr), PGSIZE, PTE_W|PTE_U);
+	map_user(pml4t, 0, V2P(paddr), PGSIZE, PTE_P|PTE_W|PTE_U);
 	memmove(paddr, init, size);
 }
 
@@ -164,17 +172,25 @@ uintptr_t *copyuvm(uintptr_t *pml4t, uintptr_t size){
 	uint8_t flags;
 	char *npaddr;
 	
-	npml4t = setupkvm();
+	if ((npml4t = setupkvm()) == 0)
+		return 0;
 	for (vaddr = 0; vaddr < size; vaddr += PGSIZE){
 		pte = walk_user_page(pml4t, vaddr);
 		paddr = PG_ADDR(*pte);
 		flags = PG_FLAG(*pte);
 		npaddr = kalloc();
-		map_user(npml4t, vaddr, V2P(npaddr), PGSIZE, flags);
 		memmove(npaddr, P2V(paddr), PGSIZE);
+		if (map_user(npml4t, vaddr, V2P(npaddr), PGSIZE, flags) < 0){
+			kfree(npaddr);
+			goto bad;
+		}
 	}
 
 	return npml4t;
+
+bad:
+	freevm(npml4t);
+	return 0;	
 }
 
 uintptr_t allocuvm(uintptr_t *pml4t, uintptr_t oldsz, uintptr_t newsz){
@@ -192,7 +208,8 @@ uintptr_t allocuvm(uintptr_t *pml4t, uintptr_t oldsz, uintptr_t newsz){
 			deallocuvm(pml4t, newsz, oldsz);
 			return 0;	
 		} 
-		if ((map_user(pml4t, vaddr, V2P(paddr), PGSIZE, PTE_W|PTE_U)) < 0){
+		if ((map_user(pml4t, vaddr, V2P(paddr),
+					 PGSIZE, PTE_P|PTE_W|PTE_U)) < 0){
 			cprintf("allocuvm out of memory\n");
 			deallocuvm(pml4t, newsz, oldsz);
 			kfree(paddr);		

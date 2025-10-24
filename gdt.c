@@ -2,8 +2,11 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
+#include "mmu.h"
 #include "gdt.h"
 #include "proc.h"
+#include "x86.h"
+#include "msr.h"
 
 void set_gdt(struct cpu *c, uint8_t i, uint8_t access, uint8_t gran){
 	c->gdt.entries[i].access = access;
@@ -38,7 +41,9 @@ void tssinstall(struct proc *p){
 	c->gdt.tss_ext.base_highest = addr >> 32;
 
 	c->gdt.tss.rsp[0] = (uintptr_t)p->kstack + KSTACKSIZE;
-	c->kernelstack = (uintptr_t)p->kstack + KSTACKSIZE;
+
+	wrmsr(KERNEL_GS_BASE, (uintptr_t)mycpu());
+	mycpu()->kernelstack = (uintptr_t)p->kstack + KSTACKSIZE;
 
 	asm volatile("ltr %0" :: "r" ((uint16_t)0x30));
 }

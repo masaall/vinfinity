@@ -7,6 +7,7 @@
 #define PGDN(a)	((a) & ~(PGSIZE-1))
 
 #define PGSIZE  4096
+#define HPGSIZE 0x200000
 #define NENTRIES 512
 
 #define PTE_P	0x001
@@ -14,10 +15,10 @@
 #define PTE_U	0x004
 #define PTE_PS	0x080
 
-#define PMLX(a) (((uintptr_t)(a) >> PMLTSHIFT) & 0x1ff)
-#define PDPX(a) (((uintptr_t)(a) >> PDPTSHIFT) & 0x1ff)
-#define PDX(a)	(((uintptr_t)(a) >> PDSHIFT) & 0x1ff)
-#define PTX(a)	(((uintptr_t)(a) >> PTSHIFT) & 0x1ff)
+#define PMLX(a) ((a >> PMLTSHIFT) & 0x1ff)
+#define PDPX(a) ((a >> PDPTSHIFT) & 0x1ff)
+#define PDX(a)	((a >> PDSHIFT) & 0x1ff)
+#define PTX(a)	((a >> PTSHIFT) & 0x1ff)
 
 #define PGADDR(pmlt, pdpt, pgdir, pgtab, offset)		\
 		(												\

@@ -13,35 +13,35 @@ static inline void insl(uint16_t port, void *addr, uint32_t cnt){
 	asm volatile("rep insl"
 				: "=D" (addr), "=c" (cnt)
 				: "d" (port), "0" (addr), "1" (cnt)
-				: "memory");
+				: "memory", "cc");
 }
 
 static inline void outsl(uint16_t port, void *addr, uint32_t cnt){
 	asm volatile("rep outsl"
 				: "=S" (addr), "=c" (cnt)
 				: "d" (port), "0" (addr), "1" (cnt)
-				:);
+				: "cc");
 }
 
 static inline void stosb(void *addr, uint8_t data, uint32_t cnt){
 	asm volatile("rep stosb"
 				:
 				: "D" (addr), "c" (cnt), "a" (data)
-				: "memory");
+				: "memory", "cc");
 }
 
 static inline void stosl(void *addr, uint32_t data, uint32_t cnt){
 	asm volatile("rep stosl"
 				: 
 				: "D" (addr), "c" (cnt), "a" (data)
-				: "memory");
+				: "memory", "cc");
 }
 
 static inline void stosq(void *addr, uint64_t data, uint32_t cnt){
 	asm volatile("rep stosq"
 				: 
 				: "D" (addr), "c" (cnt), "a" (data)
-				: "memory");
+				: "memory", "cc");
 }
 
 static inline void lcr3(uintptr_t val){
@@ -87,5 +87,17 @@ static inline uint64_t rdmsr(uint32_t msr){
 				: "=d" (hi), "=a" (lo)
 				: "c" (msr));
 
-	return ((uint64_t)(hi) << 32) | lo;
+	return (uint64_t)(hi) << 32 | lo;
+}
+
+static inline uint64_t xchg(volatile uintptr_t *addr, uint64_t newval){
+
+	uint64_t result;
+
+	asm volatile("lock; xchgq %0,%1"
+				: "+m" (*addr), "=a" (result) 
+				: "1" (newval)
+				: "cc");
+
+	return result;
 }

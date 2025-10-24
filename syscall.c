@@ -25,11 +25,10 @@ extern int sys_mknod(void);
 extern int sys_dup(void);
 
 void syscallinit(void){
-	struct cpu *c = mycpu();
 	wrmsr(MSR_EFER, 1 << 0);
 	wrmsr(MSR_LSTAR, (uintptr_t)syscall_entry);
 	wrmsr(MSR_STAR, (uintptr_t)0x1b<<48|(uintptr_t)0x8<<32);
-	wrmsr(KERNEL_GS_BASE, (uintptr_t)c);
+//	wrmsr(KERNEL_GS_BASE, (uintptr_t)mycpu());
 }
 
 static int (*syscalls[])(void) = {

@@ -13,6 +13,7 @@ struct inode {
 	uint32_t inum;
 
 	int ref;
+	struct sleeplock lock;
 	int valid;
 
 	short type;

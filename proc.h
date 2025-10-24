@@ -8,6 +8,7 @@ struct cpu {
 	struct context *context;
 	uintptr_t kernelstack;
 	uintptr_t userstack;
+	volatile uint32_t started;
 };
 
 extern struct cpu cpus[];
@@ -27,9 +28,9 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 struct proc {
 	int pid;
-	enum procstate state;
 	uintptr_t *pml4t;
 	char *kstack;
+	enum procstate state;
 	char *chan;
 	uintptr_t size;
 	bool killed;

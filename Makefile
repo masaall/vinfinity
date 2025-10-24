@@ -15,6 +15,7 @@ C_SRCS := \
 	main.c \
 	mp.c \
 	proc.c \
+	sleeplock.c \
 	spinlock.c \
 	string.c \
 	syscall.c \
@@ -47,8 +48,13 @@ boot: stage1.S stage2.S bootmain.c
 	$(CC) $(CFLAGS) -I. -c stage1.S
 	$(CC) $(CFLAGS) -I. -c stage2.S
 	$(CC) $(CFLAGS) -O -I. -c bootmain.c
-	$(LD) $(LDFLAGS) -e start -Ttext 0x7c00 -o boot.o stage1.o stage2.o bootmain.o
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7c00 -o boot.o stage1.o stage2.o bootmain.o
 	$(OBJCOPY) -S -O binary -j .text boot.o boot
+
+entryother: entryother.S
+	$(CC) $(CFLAGS) -I. -c entryother.S
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7000 -o bootother.o entryother.o
+	$(OBJCOPY) -S -O binary -j .text bootother.o entryother	
 
 vectors.S: vectors.pl
 	./vectors.pl > vectors.S	
@@ -64,8 +70,8 @@ initcode: initcode.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o initcode.out initcode.o
 	$(OBJCOPY) -S -O binary initcode.out initcode	
 
-kernel: $(OBJS) initcode kernel.ld
-	$(LD) $(LDFLAGS) -T kernel.ld -o kernel $(OBJS) -b binary initcode	
+kernel: $(OBJS) entryother initcode kernel.ld
+	$(LD) $(LDFLAGS) -T kernel.ld -o kernel $(OBJS) -b binary initcode entryother
 
 ULIB := usys.o printf.o umalloc.o ulib.o
 
@@ -87,8 +93,8 @@ fs.img: mkfs $(UPROGS)
 qemu: vin.img fs.img
 	qemu-system-x86_64 -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
 
-qemu1: vin.img
-	qemu-system-x86_64 -smp 2,cores=1 -drive format=raw,file=vin.img		
+qemu1: vin.img fs.img
+	qemu-system-x86_64 -serial mon:stdio -smp 2,cores=1 -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
 
 clean:
-	rm -f *.o *.out boot kernel init initcode *.img $(UPROGS)
+	rm -f *.o *.out boot kernel entryother initcode *.img $(UPROGS)

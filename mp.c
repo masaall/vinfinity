@@ -9,6 +9,7 @@
 
 struct cpu cpus[NCPU];
 int ncpu;
+uint8_t ioapicid;
 
 uint8_t sum(char *addr, int n){
 
@@ -54,6 +55,7 @@ void mpinit(void){
 
 	struct mpconf *conf;
 	struct mpproc *proc;
+	struct mpioapic *ioapic;
 	char *p, *e;
 
 	if ((conf = mpconfig()) == 0)
@@ -72,6 +74,8 @@ void mpinit(void){
 			p += sizeof(struct mpproc);
 			continue;
 		case MPIOAPIC:
+			ioapic = (struct mpioapic*)p;
+			ioapicid = ioapic->apicno;
 			p += sizeof(struct mpioapic);
 			continue;
 		case MPBUS:

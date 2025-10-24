@@ -188,7 +188,7 @@ void iappend(uint32_t inum, void *xp, uint32_t n){
 			x = din.addr[bn];
 		}
 		n1 = min(n, BSIZE-off%BSIZE);
-		
+
 		rsect(x, buf);
 		bcopy(xp, buf + off%BSIZE, n1);
 		wsect(x, buf);

@@ -5,6 +5,8 @@
 #include "gdt.h"
 #include "proc.h"
 #include "fs.h"
+#include "spinlock.h"
+#include "sleeplock.h"
 #include "file.h"
 #include "irqs.h"
 #include "fcntl.h"
@@ -67,9 +69,9 @@ struct inode *create(char *path, short type, short major, short minor){
 	char name[DIRSIZ];
 
 	if ((dp = nameiparent(path, name)) == 0)
-		return 0;
+		return 0;	
 
-	ilock(dp);	
+	ilock(dp);
 
 	ip = ialloc(dp->dev, type);
 
@@ -81,7 +83,7 @@ struct inode *create(char *path, short type, short major, short minor){
 
 	if (dirlink(dp, name, ip->inum) < 0)
 		panic("create");
-
+		
 	iunlockput(dp);	
 
 	return ip;
@@ -102,10 +104,15 @@ int sys_open(void){
 			return -1;
 	}
 
+	ilock(ip);
+
 	if ((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
 		if (f) fileclose(f);
+		iunlockput(ip);
 		return -1;
 	}
+
+	iunlock(ip);
 
 	f->type = FD_INODE;
 	f->ip = ip;
@@ -130,7 +137,8 @@ int sys_mknod(void){
 	if ((ip = create(path, T_DEV, major, minor)) == 0){
 		return -1;
 	}
-	
+	iunlockput(ip);
+
 	return 0;
 }
 

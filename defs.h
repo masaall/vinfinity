@@ -3,10 +3,14 @@ struct context;
 struct file;
 struct inode;
 struct proc;
+struct regs;
+struct sleeplock;
+struct spinlock;
 
 // buf.c
 void bufinit(void);
 struct buf *bufread(uint32_t, uint32_t);
+void brelse(struct buf*);
 
 // console.c
 void cls(void);
@@ -23,6 +27,7 @@ int exec(char*, char**);
 struct file *filealloc(void);
 void fileclose(struct file*);
 struct file *filedup(struct file*);
+void fileinit(void);
 int filewrite(struct file*, char*, int);
 
 // fs.c
@@ -49,10 +54,12 @@ void ideintr(void);
 void iderw(struct buf*);
 
 // idt.c
+void idtinit(void);
 void idtinstall(void);
 void picinit(void);
 
 // ioapic.c
+extern uint8_t ioapicid;
 void ioapicenable(int, int);
 void ioapicinit(void);
 
@@ -70,12 +77,32 @@ void kbdintr(void);
 extern uint32_t *lapic;
 void lapiceoi(void);
 int lapicid(void);
+void lapicinit(void);
+void lapicstartap(uint32_t, uintptr_t);
 
 // mp.c
 void mpinit(void);
 
+// sleeplock.c
+void acquiresleep(struct sleeplock*);
+void initsleeplock(struct sleeplock*, char*);
+void releasesleep(struct sleeplock*);
+int holdingsleep(struct sleeplock*);
+
+// spinlock.c
+void acquire(struct spinlock*);
+int holding(struct spinlock*);
+void initlock(struct spinlock*, char*);
+void release(struct spinlock*);
+
 // swtch.S
-void swtch(struct context**, struct context*);
+void swtch(struct context**, struct context**);
+void save_context(struct context**, struct context**);
+void restore_context(struct context**);
+
+// syscall.c
+void syscallinit(void);
+void syscall_handler(struct regs*);
 
 // proc.c
 void exit(void);
@@ -84,12 +111,15 @@ void forkret(void);
 int growproc(int);
 struct cpu *mycpu(void);
 struct proc *myproc(void);
+void pinit(void);
 void sched(void);
 void scheduler(void) __attribute__((noreturn));
-void sleep(void*);
+void sleep(void *chan, struct spinlock*);
 void userinit(void);
 int wait(void);
 void wakeup(void*);
+void wakeup1(void*);
+void yield(void);
 
 // spinlock.c
 void pushcli(void);
