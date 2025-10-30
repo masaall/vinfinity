@@ -8,7 +8,7 @@
 #include "x86.h"
 #include "msr.h"
 
-void set_gdt(struct cpu *c, uint8_t i, uint8_t access, uint8_t gran){
+void set_gdt(struct cpu *c, int i, uint8_t access, uint8_t gran){
 	c->gdt.entries[i].access = access;
 	c->gdt.entries[i].gran = gran;
 }
@@ -39,9 +39,8 @@ void tssinstall(struct proc *p){
 	c->gdt.entries[6].access = 0x89;
 	c->gdt.entries[6].base_high = (addr >> 24) & 0xff;
 	c->gdt.tss_ext.base_highest = addr >> 32;
-
+	
 	c->gdt.tss.rsp[0] = (uintptr_t)p->kstack + KSTACKSIZE;
-
 	wrmsr(KERNEL_GS_BASE, (uintptr_t)mycpu());
 	mycpu()->kernelstack = (uintptr_t)p->kstack + KSTACKSIZE;
 

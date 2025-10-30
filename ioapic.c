@@ -15,12 +15,12 @@
 struct ioapic {
 	uint32_t reg;
 	uint32_t pad[3];
-	uint32_t data;	
+	uint32_t data;
 };
 
 volatile struct ioapic *ioapic;
 
-uint32_t ioapicread(int reg){
+uint32_t ioapicread(uint32_t reg){
 	ioapic->reg = reg;
 	return ioapic->data;
 }

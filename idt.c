@@ -16,14 +16,14 @@ struct idt idt[256];
 struct spinlock tickslock;
 
 extern uintptr_t vectors[];
-uint32_t ticks;
+uint64_t ticks;
 
 void picinit(void){
 	outb(IO_PIC1+1, 0xff);
 	outb(IO_PIC2+1, 0xff);
 }
 
-void set_idt(uint16_t i, uintptr_t off, uint8_t type){
+void set_idt(int i, uintptr_t off, uint8_t type){
 	idt[i].off_low = off & 0xffff;
 	idt[i].sel = 0x8;
 	idt[i].type = type;
@@ -33,9 +33,7 @@ void set_idt(uint16_t i, uintptr_t off, uint8_t type){
 
 void idtinstall(void){
 
-	uint16_t i;
-
-	for (i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 		set_idt(i, vectors[i], 0x8e);
 	set_idt(T_SYSCALL, vectors[T_SYSCALL], 0xef);
 
@@ -51,7 +49,7 @@ void idtinit(void){
 		(uintptr_t)idt
 	};
 
-	asm volatile("lidt %0" :: "m" (idtp));	
+	asm volatile("lidt %0" :: "m" (idtp));
 }
 
 void isr_handler(struct regs *r){

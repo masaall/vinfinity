@@ -19,7 +19,7 @@ struct {
 } ptable;
 
 static struct proc *initproc;
-int nextpid = 1;
+uint32_t nextpid = 1;
 
 void pinit(void){
 	initlock(&ptable.lock, "ptable");
@@ -57,7 +57,6 @@ struct proc *allocproc(void){
 
 	struct proc *p;
 	char *stack;
-	static bool first = true;
 
 	acquire(&ptable.lock);
 
@@ -84,12 +83,7 @@ found:
 	p->regs = (struct regs*)stack;
 
 	stack -= 8;
-	if (first){
-		first = false;
-		*(void**)stack = touser;
-	} else {
-		*(void**)stack = touser1;
-	}
+	*(void**)stack = touser;
 
 	stack -= sizeof(*p->context);
 	p->context = (struct context*)stack;
@@ -250,7 +244,7 @@ void scheduler(void){
 		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 			if (p->state != RUNNABLE) continue;
 
-			asm volatile("swapgs");
+//			asm volatile("swapgs");
 
 			c->proc = p;
 			switchuvm(p);

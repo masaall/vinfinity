@@ -66,7 +66,7 @@ void ioapicinit(void);
 // kalloc.c
 void getcallerpcs(uintptr_t*, uintptr_t*);
 void *kalloc(void);
-void kfree(char*);
+void kfree(void*);
 void kinit1(void*, void*);
 void kinit2(void*, void*);
 
@@ -165,4 +165,3 @@ void screen_swap(void);
 // tetris.c
 void render_menu(void);
 void tetris(void);
-

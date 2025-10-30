@@ -54,8 +54,8 @@ static inline uintptr_t rcr2(void){
 	return val;
 }
 
-static inline uint64_t readrflags(void){
-	uint64_t flags;
+static inline uintptr_t readrflags(void){
+	uintptr_t flags;
 	asm volatile("pushfq; popq %0" : "=r" (flags));
 	return flags;
 }

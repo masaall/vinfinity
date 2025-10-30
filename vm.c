@@ -103,16 +103,15 @@ int map_kernel(uintptr_t *pml4t, uintptr_t vaddr, uintptr_t paddr,
 		else
 			panic("map_kernel remap");
 	}
-
 	return 0;
 }
 
-struct kmap {
+struct {
 	uintptr_t vaddr;
 	uintptr_t pstart;
 	uintptr_t size;
 	uint8_t flags;	
-} kmapp[] = {
+} map[] = {
 	{KERNBASE, 0, PHYSTOP, PTE_P | PTE_W | PTE_PS},
 	{KERNDEV, DEVSPACE, 0x1000000, PTE_P | PTE_W | PTE_PS}
 };
@@ -120,15 +119,17 @@ struct kmap {
 uintptr_t *setupkvm(void){
 
 	uintptr_t *pml4t;
-	struct kmap *k;
 
 	if ((pml4t = kalloc()) == 0)
 		return 0;
-	for (k = kmapp; k < &kmapp[NELEM(kmapp)]; k++)
-		if (map_kernel(pml4t, k->vaddr, k->pstart, k->size, k->flags) < 0){
+
+	for (uint32_t i = 0; i < NELEM(map); i++){
+		if (map_kernel(pml4t, map[i].vaddr, map[i].pstart,
+			 map[i].size, map[i].flags) < 0){
 			freevm(pml4t);
-		return 0;
-	 }
+			return 0;	 	
+		}
+	}
 
 	return pml4t;
 }
@@ -185,9 +186,7 @@ uintptr_t *copyuvm(uintptr_t *pml4t, uintptr_t size){
 			goto bad;
 		}
 	}
-
 	return npml4t;
-
 bad:
 	freevm(npml4t);
 	return 0;	
@@ -258,16 +257,16 @@ void freevm(uintptr_t *pml4t){
 						if (pgdir[pdx] & PTE_P && pmlx < PMLX(KERNBASE)){
 							pgtab = P2V(PG_ADDR(pgdir[pdx]));
 
-							kfree((char*)pgtab);
+							kfree(pgtab);
 						}
 					}
-					kfree((char*)pgdir);
+					kfree(pgdir);
 				}	
 			}
-			kfree((char*)pdpt);
+			kfree(pdpt);
 		}
 	}
-	kfree((char*)pml4t);
+	kfree(pml4t);
 }
 
 int loaduvm(uintptr_t *pml4t, struct inode *ip,

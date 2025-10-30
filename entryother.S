@@ -44,6 +44,9 @@ start64:
 	mov %ax,%es
 	mov %ax,%ss
 
+	movq $0,%rax
+	movq %rax,(start-32)
+
 	mov (start-24),%rax
 	mov %rax,%cr3
 

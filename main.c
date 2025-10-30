@@ -20,14 +20,23 @@ uintptr_t entrypml4t[];
 uintptr_t entrypdpt[];
 uintptr_t entrypgdir[];
 
+void screeninit(void){
+	outb(0x3c6, 0xff);
+	outb(0x3c8, 0);
+
+	outb(0x3c9, 0x00);
+	outb(0x3c9, 0x00);
+	outb(0x3c9, 0x2a);
+}
+
 int main(void){
 
+	screeninit();
 	cls();
 	uartinit();
 
 	kinit1(end, P2V(0x400000));
 	kvminit();
-//	kinit2(P2V(0x400000), P2V(PHYSTOP));
 	mpinit();
 	lapicinit();
 	gdtinstall();

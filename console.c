@@ -144,7 +144,7 @@ void cgaputc(int c){
 		if (pos > 0) pos--;
 	}	
 	else 
-		crt[pos++] = 0x0700 | (c & 0xff);
+		crt[pos++] = 0x0a00 | (c & 0xff);
 
 	if (pos >= 24*80){
 		memmove(crt, crt+80, sizeof(crt[0])*23*80);
@@ -156,7 +156,7 @@ void cgaputc(int c){
 	outb(CRTPORT+1, pos >> 8);
 	outb(CRTPORT, 15);
 	outb(CRTPORT+1, pos);
-	crt[pos] = 0x0700 | (' ' & 0xff);
+	crt[pos] = 0x0a00 | (' ' & 0xff);
 }
 
 void consputc(int c){

@@ -35,7 +35,7 @@ void release(struct spinlock *lock){
 
 	__sync_synchronize();
 
-	asm volatile("mov $0,%0" : "+m" (lock->locked));
+	asm volatile("movq $0,%0" : "+m" (lock->locked));
 
 	popcli();
 }
