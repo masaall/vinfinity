@@ -106,9 +106,9 @@ int map_kernel(uintptr_t *pml4t, uintptr_t vaddr, uintptr_t paddr,
 	return 0;
 }
 
-struct {
+struct kmap {
 	uintptr_t vaddr;
-	uintptr_t pstart;
+	uintptr_t paddr;
 	uintptr_t size;
 	uint8_t flags;	
 } map[] = {
@@ -119,17 +119,17 @@ struct {
 uintptr_t *setupkvm(void){
 
 	uintptr_t *pml4t;
+	struct kmap *k;
 
 	if ((pml4t = kalloc()) == 0)
 		return 0;
 
-	for (uint32_t i = 0; i < NELEM(map); i++){
-		if (map_kernel(pml4t, map[i].vaddr, map[i].pstart,
-			 map[i].size, map[i].flags) < 0){
+	for (k = map; k < &map[NELEM(map)]; k++){
+		if (map_kernel(pml4t, k->vaddr, k->paddr, k->size, k->flags) < 0){
 			freevm(pml4t);
-			return 0;	 	
+			return 0;
 		}
-	}
+	}	
 
 	return pml4t;
 }

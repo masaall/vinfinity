@@ -9,7 +9,7 @@ swtch:
 	push %r15
 
 	mov %rsp,(%rdi)
-	mov (%rsi),%rsp
+	mov %rsi,%rsp
 
 	pop %r15
 	pop %r14

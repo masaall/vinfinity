@@ -13,7 +13,7 @@
 #define CRTPORT 0x3d4
 #define BACKSPACE 0x100
 
-uint16_t *crt = P2V(0xb8000);
+static uint16_t *crt = P2V(0xb8000);
 static int panicked = 0;
 
 struct {
@@ -23,10 +23,10 @@ struct {
 
 void consputc(int c);
 
-void printint(long xx, int base, bool sign){
+static void printint(long xx, int base, bool sign){
 
-	char digits[] = "0123456789abcdef";
-	char val[21];
+	static char digits[] = "0123456789abcdef";
+	char buf[21];
 	uint64_t x;
 	int i;
 
@@ -37,28 +37,27 @@ void printint(long xx, int base, bool sign){
 
 	i = 0;
 	do {
-		val[i++] = digits[x % base];
-	} while ((x/=base) != 0);
+		buf[i++] = digits[x % base];
+	} while ((x /= base) != 0);
 
 	if (sign)
-		val[i++] = '-';
+		buf[i++] = '-';
 
 	while (--i >= 0)
-		consputc(val[i]);
+		consputc(buf[i]);
 }
 
 void cprintf(const char *fmt, ...){
 
-	int i, c;
+	int c;
 	va_list va;
-	char *s;
-	char ch;
+	char *s, ch;
 
 	if (cons.locking)
 		acquire(&cons.lock);
 
 	va_start(va, fmt);
-	for (i = 0; (c = fmt[i] & 0xff); i++){
+	for (int i = 0; (c = fmt[i] & 0xff); i++){
 		if (c != '%'){
 			consputc(c);
 			continue;
@@ -105,23 +104,22 @@ void cprintf(const char *fmt, ...){
 void panic(char *s){
 
 	uintptr_t pcs[10];
-	int i;
 
 	cprintf("lapicid %d: panic: ", lapicid());
 	cprintf(s);
 	cprintf("\n");
 	getcallerpcs(__builtin_frame_address(0), pcs);
-	for (i = 0; i < 10; i++)
+	for (int i = 0; i < 10; i++)
 		cprintf(" %p", pcs[i]);
 	cprintf("\n");
 	panicked = 1;
 	for (;;);
 }
 
-void cls(){
+void cls(void){
 
 	uint16_t pos = 0;
-	
+
 	memset(crt, 0, sizeof(crt[0])*25*80);
 	outb(CRTPORT, 14);
 	outb(CRTPORT+1, pos >> 8);
@@ -129,7 +127,7 @@ void cls(){
 	outb(CRTPORT+1, pos);
 }
 
-void cgaputc(int c){
+static void cgaputc(int c){
 
 	uint16_t pos;
 
@@ -142,21 +140,20 @@ void cgaputc(int c){
 		pos += 80 - pos%80;
 	else if (c == BACKSPACE){
 		if (pos > 0) pos--;
-	}	
-	else 
-		crt[pos++] = 0x0a00 | (c & 0xff);
+	} else 
+		crt[pos++] = 0x0a00 | c;
 
 	if (pos >= 24*80){
 		memmove(crt, crt+80, sizeof(crt[0])*23*80);
 		pos -= 80;
-		memset(crt + pos, 0, sizeof(crt[0])*(24*80 - pos));
-	}	
+		memset(crt+pos, 0, sizeof(crt[0])*(24*80 - pos));
+	}
 
 	outb(CRTPORT, 14);
 	outb(CRTPORT+1, pos >> 8);
 	outb(CRTPORT, 15);
 	outb(CRTPORT+1, pos);
-	crt[pos] = 0x0a00 | (' ' & 0xff);
+	crt[pos] = 0x0a00 | ' ';
 }
 
 void consputc(int c){
@@ -215,12 +212,11 @@ void consintr(int (*getc)(void)){
 
 int consolewrite(struct inode *ip, char *addr, int n){
 
-	int i;
-
 	iunlock(ip);
 	acquire(&cons.lock);
-	for (i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 		consputc(addr[i] & 0xff);
+
 	release(&cons.lock);	
 	ilock(ip);
 

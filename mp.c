@@ -46,7 +46,7 @@ struct mpconf *mpconfig(void){
 
 	if ((mp = mpsearch()) == 0)
 		return 0;
-	conf = P2V(mp->physaddr);
+	conf = P2V((uintptr_t)mp->physaddr);
 
 	return conf;
 }

@@ -35,7 +35,14 @@ int main(void){
 	cls();
 	uartinit();
 
-	kinit1(end, P2V(0x400000));
+	kinit1(end, (void*)PGUP((uintptr_t)end+PGSIZE));
+	uintptr_t *addr = kalloc();
+	cprintf("%p \n", addr);
+	kfree(addr);
+	cprintf("%p \n", kalloc());
+	cprintf("%p \n", kalloc());
+
+/*	kinit1(end, P2V(0x400000));
 	kvminit();
 	mpinit();
 	lapicinit();
@@ -54,7 +61,7 @@ int main(void){
 	kinit2(P2V(0x400000), P2V(PHYSTOP));
 	userinit();
 	mpmain();
-
+*/
 	panic("end main");
 }
 

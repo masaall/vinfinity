@@ -14,10 +14,10 @@
 #define IDE_CMD_READ 	0x20
 #define IDE_CMD_WRITE 	0x30
 
-struct spinlock idelock;
+static struct spinlock idelock;
 
-bool havedisk1;
-struct buf *idequeue;
+static bool havedisk1;
+static struct buf *idequeue;
 
 void idewait(void){
 	while ((inb(0x1f7) & 0xc0) != 0x40);
@@ -44,7 +44,9 @@ void idestart(struct buf *b){
 	idewait();
 	outb(0x1f2, 1);
 	outb(0x1f3, b->blockno);
-	outb(0x1f6, 0xe0 | (1 << 4));
+	outb(0x1f4, b->blockno >> 8);
+	outb(0x1f5, b->blockno >> 16);
+	outb(0x1f6,  0xe0 | (1 << 4) | (b->blockno >> 24));
 
 	if (b->flags & B_DIRTY){
 		outb(0x1f7, IDE_CMD_WRITE);
@@ -64,6 +66,7 @@ void ideintr(void){
 		release(&idelock);
 		return;
 	}
+	idequeue = b->qnext;
 
 	if (!(b->flags & B_DIRTY))
 		insl(0x1f0, b->data, BSIZE/4);
@@ -71,28 +74,32 @@ void ideintr(void){
 	b->flags |= B_VALID;
 	b->flags &= ~B_DIRTY;
 
-	wakeup(b);	
+	wakeup(b);
 
 	release(&idelock);
 }
 
 void iderw(struct buf *b){
 
+	struct buf **pp;
+
 	if (!holdingsleep(&b->lock))
 		panic("iderw: buf not locked");
+	if ((b->flags & (B_VALID|B_DIRTY)) == B_VALID)
+		panic("iderw: nothing to do");	
 	if (b->dev != 0 && !havedisk1)
 		panic("iderw: ide disk 1 not present");
 
-	acquire(&idelock);	
+	acquire(&idelock);
 
-	idequeue = b;
+	b->qnext = 0;
+	for (pp=&idequeue;*pp;pp=&(*pp)->qnext);
+	*pp = b;
 
 	idestart(b);
 
-	if ((b->flags & B_VALID) != B_VALID){
+	if ((b->flags & B_VALID) != B_VALID)
 		sleep(b, &idelock);
-	}
+
 	release(&idelock);
 }
-
-

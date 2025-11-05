@@ -33,7 +33,7 @@ void iinit(uint32_t dev){
 	initlock(&icache.lock, "icach");
 	for (int i = 0; i < NINODE; i++)
 		initsleeplock(&icache.inode[i].lock, "inode");
-	
+
 	readsb(dev);
 	cprintf("sb: size %d nblock %d ninode %d nlog %d logstart %d inodestart %d bmapstart %d\n",
 		 sb.size, sb.nblock, sb.ninode, sb.nlog, sb.logstart, sb.inodestart, sb.bmapstart);	 
@@ -44,7 +44,7 @@ struct inode *iget(uint32_t dev, uint32_t inum){
 	struct inode *ip, *empty;
 
 	acquire(&icache.lock);
-	
+
 	empty = 0;
 	for (ip = icache.inode; ip < &icache.inode[NINODE]; ip++){
 		if (ip->ref > 0 && ip->dev == dev && ip->inum == inum){
@@ -170,13 +170,27 @@ void iunlockput(struct inode *ip){
 	iput(ip);
 }
 
-uint32_t bmap(struct inode *ip, uint32_t i){
+uint32_t bmap(struct inode *ip, uint32_t fbn){
 
-	uint32_t blockno;
+	uint32_t blockno, *a;
+	struct buf *bp;
 
-	if (i < NDIRECT){
-		if ((blockno = ip->addr[i]) == 0){
+	if (fbn < NDIRECT){
+		if ((blockno = ip->addr[fbn]) == 0){
 		}
+		return blockno;
+	}
+
+	fbn -= NDIRECT;
+
+	if (fbn < NINDIRECT){
+		if ((blockno = ip->addr[NDIRECT]) == 0){	
+		}
+		bp = bufread(ip->dev, blockno);
+		a = (uint32_t*)bp->data;
+		if ((blockno = a[fbn]) == 0){
+		}
+		brelse(bp);
 		return blockno;
 	}
 

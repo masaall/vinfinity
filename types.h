@@ -8,3 +8,5 @@ typedef uint64_t uintptr_t;
 typedef uint64_t size_t;
 
 typedef enum { false, true } bool;
+
+#define NULL ((void*)0)

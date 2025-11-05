@@ -22,7 +22,7 @@ struct dinode {
 	short minor;
 	short nlink;
 	uint32_t size;
-	uint32_t addr[NDIRECT+1];	
+	uint32_t addr[NDIRECT+1];
 };
 
 #define IPB (BSIZE/sizeof(struct dinode))

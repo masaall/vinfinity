@@ -96,15 +96,14 @@ void initlock(struct spinlock*, char*);
 void release(struct spinlock*);
 
 // swtch.S
-void swtch(struct context**, struct context**);
-void save_context(struct context**, struct context**);
-void restore_context(struct context**);
+void swtch(struct context**, struct context*);
 
 // syscall.c
 void syscallinit(void);
 void syscall_handler(struct regs*);
 
 // proc.c
+int cpuid(void);
 void exit(void);
 int fork(void);
 void forkret(void);

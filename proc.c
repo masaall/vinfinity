@@ -13,7 +13,7 @@
 extern void touser(void);
 extern void touser1(void);
 
-struct {
+static struct {
 	struct proc proc[NPROC];
 	struct spinlock lock;
 } ptable;
@@ -25,15 +25,19 @@ void pinit(void){
 	initlock(&ptable.lock, "ptable");
 }
 
+int cpuid(void){
+	return mycpu()-cpus;	
+}
+
 struct cpu *mycpu(void){
 
-	int apicid, i;
+	int apicid;
 
 	if (readrflags()&FL_IF)
 		panic("mycpu called with interrupt enabled");
 
 	apicid = lapicid();
-	for (i = 0; i < ncpu; i++)
+	for (int i = 0; i < ncpu; i++)
 		if (cpus[i].apicid == apicid)
 			return &cpus[i];
 
@@ -57,6 +61,7 @@ struct proc *allocproc(void){
 
 	struct proc *p;
 	char *stack;
+//	static int first = true;
 
 	acquire(&ptable.lock);
 
@@ -85,6 +90,16 @@ found:
 	stack -= 8;
 	*(void**)stack = touser;
 
+/*
+	stack -= 8;
+	if (first){
+		first = false;
+		*(void**)stack = touser;
+	} else {
+		*(void**)stack = touser1;
+	}
+*/
+
 	stack -= sizeof(*p->context);
 	p->context = (struct context*)stack;
 	p->context->rip = (uintptr_t)forkret;
@@ -107,7 +122,7 @@ void userinit(void){
 	p->regs->ss = 0x23;
 	p->regs->rsp = PGSIZE;
 	p->regs->rflags = FL_IF;
-	p->regs->rip = 0;
+	p->regs->rip = 0x0;
 
 	p->cwd = namei("/");
 
@@ -228,7 +243,7 @@ void sched(void){
 	if (readrflags()&FL_IF)
 		panic("sched");		
 	intena = mycpu()->intena;
-	swtch(&p->context, &mycpu()->context);
+	swtch(&p->context, mycpu()->context);
 	mycpu()->intena = intena;
 }
 
@@ -244,13 +259,13 @@ void scheduler(void){
 		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 			if (p->state != RUNNABLE) continue;
 
-//			asm volatile("swapgs");
+			asm volatile("swapgs");
 
 			c->proc = p;
 			switchuvm(p);
 			p->state = RUNNING;
 
-			swtch(&c->context, &p->context);
+			swtch(&c->context, p->context);
 			switchkvm();
 
 			c->proc = 0;
@@ -267,7 +282,7 @@ void sleep(void *chan, struct spinlock *lock){
 		panic("sleep");
 
 	if (lock == 0)
-		panic("sleep");	
+		panic("sleep");
 
 	if (lock != &ptable.lock){
 		acquire(&ptable.lock);

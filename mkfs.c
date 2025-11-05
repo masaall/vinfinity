@@ -17,7 +17,7 @@
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
 
 int nbitmap = FSSIZE/(BSIZE*8) + 1;
-int ninodeblock = (NINODES/IPB) + 1;
+int ninodeblock = NINODES/IPB + 1;
 int nlog = LOGSIZE;
 int nmeta;
 int nblock;
@@ -29,6 +29,7 @@ uint32_t freeinode = 1;
 uint32_t freeblock;
 
 void wsect(uint32_t, void*);
+void rsect(uint32_t, void*);
 uint32_t ialloc(short);
 void iappend(uint32_t, void*, uint32_t);
 void rinode(uint32_t, struct dinode*);
@@ -43,6 +44,10 @@ int main(int argc, char *argv[]){
 	int i, fd, cc;
 
 	fsfd = open(argv[1], O_RDWR|O_CREAT|O_TRUNC, 0666);
+	if (fsfd < 0){
+		perror(argv[1]);
+		exit(1);
+	}
 
 	nmeta = 2 + nlog + ninodeblock + nbitmap;
 	nblock = FSSIZE - nmeta;
@@ -55,10 +60,13 @@ int main(int argc, char *argv[]){
 	sb.inodestart = 2 + nlog;
 	sb.bmapstart = 2 + nlog + ninodeblock;
 
+	printf("nmeta %d (boot, super, log block %d inode block %d, bitmap block %d) block %d total %d \n",
+		 nmeta, nlog, ninodeblock, nbitmap, nblock, FSSIZE);
+
 	freeblock = nmeta;
 
 	for (i = 0; i < FSSIZE; i++)
-		wsect(i, zeroes);
+		wsect(i, zeroes);	
 
 	memset(buf, 0, sizeof(buf));
 	memmove(buf, &sb, sizeof(sb));
@@ -174,25 +182,34 @@ void iappend(uint32_t inum, void *xp, uint32_t n){
 
 	struct dinode din;
 	char buf[BSIZE];
-	uint32_t off, bn, n1, x;
-	
+	uint32_t indirect[NINDIRECT];
+	uint32_t off, fbn, n1, x;
+
 	rinode(inum, &din);
 	off = din.size;
 //	printf("append inum %d at off %d n %d \n", inum, off, n);
 	while (n > 0){
-		bn = off/BSIZE;
-		if (bn < NDIRECT){
-			if (din.addr[bn] == 0){
-				din.addr[bn] = freeblock++;
+		fbn = off/BSIZE;
+		if (fbn < NDIRECT){
+			if (din.addr[fbn] == 0){
+				din.addr[fbn] = freeblock++;
 			}
-			x = din.addr[bn];
+			x = din.addr[fbn];
+		} else {
+			if (din.addr[NDIRECT] == 0){
+				din.addr[NDIRECT] = freeblock++;
+			}
+			rsect(din.addr[NDIRECT], indirect);
+			if (indirect[fbn - NDIRECT] == 0){
+				indirect[fbn - NDIRECT] = freeblock++;
+				wsect(din.addr[NDIRECT], indirect);
+			}
+			x = indirect[fbn - NDIRECT];
 		}
 		n1 = min(n, BSIZE-off%BSIZE);
-
 		rsect(x, buf);
 		bcopy(xp, buf + off%BSIZE, n1);
 		wsect(x, buf);
-
 		n -= n1;
 		off += n1;
 		xp += n1;

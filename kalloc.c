@@ -11,26 +11,24 @@ void freerange(char*, char*);
 
 struct block {
 	struct block *next;
-	struct block *prev;	
 };
 
-struct {
+static struct {
 	struct spinlock lock;
-	int use_lock;
-	struct block head;
+	struct block *head;
+	struct block *tail;
+	bool use_lock;
 } kmem;
 
 void kinit1(void *start, void *end){
 	initlock(&kmem.lock, "kmem");
-	kmem.use_lock = 0;
-	kmem.head.prev = &kmem.head;
-	kmem.head.next = &kmem.head;
+	kmem.use_lock = false;
 	freerange(start, end);
 }
 
 void kinit2(void *start, void *end){
 	freerange(start, end);
-	kmem.use_lock = 1;
+	kmem.use_lock = true;
 }
 
 void freerange(char *start, char *end){
@@ -40,21 +38,26 @@ void freerange(char *start, char *end){
 		kfree(start);
 }
 
-void kfree(void *addr){
+void kfree(void *v){
 
 	struct block *b;
 
 	if (kmem.use_lock)
 		acquire(&kmem.lock);
 
-	if ((uintptr_t)addr % PGSIZE || (char*)addr < end || V2P(addr) >= PHYSTOP)
+	if ((uintptr_t)v % PGSIZE || (char*)v < end || V2P(v) >= PHYSTOP)
 		panic("kfree");
 
-	b = (struct block*)addr;
-	b->next = &kmem.head;
-	b->prev = kmem.head.prev;
-	kmem.head.prev->next = b;
-	kmem.head.prev = b;
+	b = (struct block*)v;
+	b->next = NULL;
+
+	if (kmem.tail){
+		kmem.tail->next = b;
+		kmem.tail = b;
+	} else {
+		kmem.head = b;
+		kmem.tail = b;
+	}
 
 	if (kmem.use_lock)
 		release(&kmem.lock);
@@ -67,14 +70,19 @@ void *kalloc(void){
 	if (kmem.use_lock)
 		acquire(&kmem.lock);
 
-	b = kmem.head.next;
-	if (b && b != &kmem.head){
-		b->next->prev = b->prev;
-		b->prev->next = b->next;
-		memset(b, 0, PGSIZE);
-	} else 
-		return 0;
+	if (kmem.head == NULL){
+		if (kmem.use_lock)
+			release(&kmem.lock);
+		return NULL;
+	}
 
+	b = kmem.head;
+	kmem.head = b->next;
+
+	if (kmem.head == NULL)
+		kmem.tail = NULL;
+
+	memset(b, 0, PGSIZE);
 	if (kmem.use_lock)
 		release(&kmem.lock);
 
@@ -83,13 +91,13 @@ void *kalloc(void){
 
 void getcallerpcs(uintptr_t *rbp, uintptr_t *pcs){
 
-	uint8_t i;
+	int i;
 
 	for (i = 0; i < 10; i++){
-		if (rbp == 0 || rbp < (uintptr_t*)KERNBASE)
+		if (rbp == NULL || rbp < (uintptr_t*)KERNBASE)
 			break;
-		pcs[i] = *(rbp + 1);
-		rbp = (uintptr_t*)*rbp;
+		pcs[i] = rbp[1];
+		rbp = (uintptr_t*)rbp[0];
 	}
 	for (; i < 10; i++)
 		pcs[i] = 0;

@@ -3,7 +3,7 @@
 
 #define DPL_USER 0x3
 
-#define PGUP(a)	((a + (PGSIZE-1)) & ~(PGSIZE-1))
+#define PGUP(a)	(((a) + PGSIZE-1) & ~(PGSIZE-1))
 #define PGDN(a)	((a) & ~(PGSIZE-1))
 
 #define PGSIZE  0x1000

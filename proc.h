@@ -8,7 +8,7 @@ struct cpu {
 	struct context *context;
 	uintptr_t kernelstack;
 	uintptr_t userstack;
-	volatile uint32_t started;
+	volatile bool started;
 };
 
 extern struct cpu cpus[];

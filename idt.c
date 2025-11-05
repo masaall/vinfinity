@@ -15,6 +15,14 @@
 struct idt idt[256];
 struct spinlock tickslock;
 
+struct idtr {
+	uint16_t size;
+	uintptr_t base;
+} __attribute__((packed)) idtr = {
+	sizeof(idt) - 1,
+	(uintptr_t)idt
+};
+
 extern uintptr_t vectors[];
 uint64_t ticks;
 
@@ -41,15 +49,7 @@ void idtinstall(void){
 }
 
 void idtinit(void){
-	struct {
-		uint16_t size;
-		uintptr_t base;
-	} __attribute__((packed)) idtp = {
-		sizeof(idt) - 1,
-		(uintptr_t)idt
-	};
-
-	asm volatile("lidt %0" :: "m" (idtp));
+	asm volatile("lidt %0" :: "m" (idtr));
 }
 
 void isr_handler(struct regs *r){
