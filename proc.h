@@ -21,14 +21,14 @@ struct context {
 	uintptr_t r12;
 	uintptr_t rbx;
 	uintptr_t rbp;
-	uintptr_t rip;	
+	uintptr_t rip;
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 struct proc {
 	int pid;
-	uintptr_t *pml4t;
+	uintptr_t *pml5t;
 	char *kstack;
 	enum procstate state;
 	char *chan;

@@ -41,8 +41,8 @@ void iunlockput(struct inode*);
 void iupdate(struct inode*);
 struct inode *namei(char*);
 struct inode *nameiparent(char*, char*);
-int readi(struct inode*, char*, uint32_t, uint32_t);
-int writei(struct inode*, char*, uint32_t, uint32_t);
+int readi(struct inode*, void*, uint32_t, uint32_t);
+int writei(struct inode*, void*, uint32_t, uint32_t);
 
 // gdt.c
 void gdtinstall(void);
@@ -103,7 +103,6 @@ void syscallinit(void);
 void syscall_handler(struct regs*);
 
 // proc.c
-int cpuid(void);
 void exit(void);
 int fork(void);
 void forkret(void);
@@ -149,6 +148,8 @@ void freevm(uintptr_t*);
 void inituvm(uintptr_t*, void*, uintptr_t);
 void kvminit(void);
 int loaduvm(uintptr_t*, struct inode*, uintptr_t, uintptr_t, uintptr_t);
+uintptr_t pgaddr(uint16_t, uint16_t, uint16_t,
+			uint16_t, uint16_t, uint16_t);
 uintptr_t *setupkvm(void);
 void switchkvm(void);
 void switchuvm(struct proc*);

@@ -13,14 +13,16 @@
 #include "irqs.h"
 #include "x86.h"
 
+#define SECTSIZE 512
+
 int exec(char *path, char **argv){
 
 	struct inode *ip;
 	struct elfhdr elf;
 	struct proghdr ph;
 	struct proc *curproc = myproc();
-	uintptr_t *pml4t, *oldpml4t;
-	uint32_t i, off;
+	uintptr_t *pml5t, *oldpml5t;
+	uint32_t i, off, argc;
 	uintptr_t size;
 
 	if ((ip = namei(path)) == 0){
@@ -28,41 +30,49 @@ int exec(char *path, char **argv){
 		return -1;
 	}
 	ilock(ip);
-	pml4t = 0;
+	pml5t = 0;
 
-	if (readi(ip, (void*)&elf, 0, sizeof(elf)) != sizeof(elf))
+	if (readi(ip, &elf, 0, sizeof(elf)) != sizeof(elf))
 		goto bad;
 	if (elf.magic != ELF_MAGIC)
-		goto bad;
+		goto bad;	
 
-	if ((pml4t = setupkvm()) == 0)
+	if ((pml5t = setupkvm()) == 0)
 		goto bad;
 
 	size = 0;
 	for (i = 0, off = elf.phoff; i < elf.phnum; i++, off += sizeof(ph)){
-		if (readi(ip, (void*)&ph, off, sizeof(ph)) != sizeof(ph))
-			goto bad;
-		size = allocuvm(pml4t, size, ph.vaddr+ph.memsz);
-		if (loaduvm(pml4t, ip, ph.vaddr, ph.offset, ph.filesz) < 0)
+		if (readi(ip, &ph, off, sizeof(ph)) != sizeof(ph))
+			goto bad;		
+		if ((size = allocuvm(pml5t, size, ph.vaddr+ph.memsz)) == 0)
+			goto bad;	
+		if (loaduvm(pml5t, ip, ph.vaddr, ph.offset, ph.filesz) < 0)
 			goto bad;
 	}
 	iunlockput(ip);
 	ip = 0;
 
 	size = PGUP(size);
-	size = allocuvm(pml4t, size, size + 2*PGSIZE);
+	if ((size = allocuvm(pml5t, size, size + 2*PGSIZE)) == 0)
+		goto bad;	
 
-	oldpml4t = curproc->pml4t;
-	curproc->pml4t = pml4t;
+	for (argc = 0; argv[argc]; argc++){
+		
+	}
+
+	oldpml5t = curproc->pml5t;
+	curproc->pml5t = pml5t;
 	curproc->size = size;
 	curproc->regs->rip = elf.entry;
 	switchuvm(curproc);
-	freevm(oldpml4t);
+	freevm(oldpml5t);
 
 	return 0;
 bad:
-	if (pml4t) 
-		freevm(pml4t);
-		
+	if (pml5t) 
+		freevm(pml5t);
+	if (ip){
+		iunlockput(ip);
+	}
 	return -1;
 }

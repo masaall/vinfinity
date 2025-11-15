@@ -25,10 +25,6 @@ void pinit(void){
 	initlock(&ptable.lock, "ptable");
 }
 
-int cpuid(void){
-	return mycpu()-cpus;	
-}
-
 struct cpu *mycpu(void){
 
 	int apicid;
@@ -90,8 +86,7 @@ found:
 	stack -= 8;
 	*(void**)stack = touser;
 
-/*
-	stack -= 8;
+/*	stack -= 8;
 	if (first){
 		first = false;
 		*(void**)stack = touser;
@@ -99,9 +94,9 @@ found:
 		*(void**)stack = touser1;
 	}
 */
-
 	stack -= sizeof(*p->context);
 	p->context = (struct context*)stack;
+	memset(p->context, 0, sizeof(*p->context));
 	p->context->rip = (uintptr_t)forkret;
 
 	return p;
@@ -115,9 +110,10 @@ void userinit(void){
 	p = allocproc();
 	initproc = p;
 
-	p->pml4t = setupkvm();
-	inituvm(p->pml4t, _binary_initcode_start, (uintptr_t)_binary_initcode_size);
+	p->pml5t = setupkvm();
+	inituvm(p->pml5t, _binary_initcode_start, (uintptr_t)_binary_initcode_size);
 	p->size = PGSIZE;
+	memset(p->regs, 0, sizeof(*p->regs));
 	p->regs->cs = 0x2b;
 	p->regs->ss = 0x23;
 	p->regs->rsp = PGSIZE;
@@ -138,10 +134,10 @@ int growproc(int n){
 
 	size = curproc->size;
 	if (n > 0){
-		if ((size = allocuvm(curproc->pml4t, size, size + n)) == 0)
+		if ((size = allocuvm(curproc->pml5t, size, size + n)) == 0)
 			return -1;
 	} else if (n < 0) {
-		if (( size = deallocuvm(curproc->pml4t, size, size + n)) == 0)
+		if (( size = deallocuvm(curproc->pml5t, size, size + n)) == 0)
 			return -1;
 	}
 	curproc->size = size;
@@ -157,7 +153,7 @@ int fork(void){
 	if ((newproc = allocproc()) == 0)
 		return -1;
 
-	if ((newproc->pml4t = copyuvm(curproc->pml4t, curproc->size)) == 0){
+	if ((newproc->pml5t = copyuvm(curproc->pml5t, curproc->size)) == 0){
 		kfree(newproc->kstack);
 		newproc->kstack = 0;
 		newproc->state = UNUSED;
@@ -213,7 +209,7 @@ int wait(void){
 				pid = p->pid;
 				kfree(p->kstack);
 				p->kstack = 0;
-				freevm(p->pml4t);
+				freevm(p->pml5t);
 				p->pid = 0;
 				p->parent = 0;
 				p->killed = 0;

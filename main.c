@@ -16,6 +16,7 @@ extern char end[];
 void mpmain(void);
 void startothers(void);
 
+uintptr_t entrypml5t[];
 uintptr_t entrypml4t[];
 uintptr_t entrypdpt[];
 uintptr_t entrypgdir[];
@@ -35,14 +36,7 @@ int main(void){
 	cls();
 	uartinit();
 
-	kinit1(end, (void*)PGUP((uintptr_t)end+PGSIZE));
-	uintptr_t *addr = kalloc();
-	cprintf("%p \n", addr);
-	kfree(addr);
-	cprintf("%p \n", kalloc());
-	cprintf("%p \n", kalloc());
-
-/*	kinit1(end, P2V(0x400000));
+	kinit1(end, P2V(0x400000));
 	kvminit();
 	mpinit();
 	lapicinit();
@@ -61,7 +55,7 @@ int main(void){
 	kinit2(P2V(0x400000), P2V(PHYSTOP));
 	userinit();
 	mpmain();
-*/
+
 	panic("end main");
 }
 
@@ -70,7 +64,7 @@ void mpmain(void){
 	idtinit();
 	syscallinit();
 	xchg((uintptr_t*)&(mycpu()->started), 1);
-	scheduler();	
+	scheduler();
 }
 
 void mpenter(void){
@@ -98,12 +92,19 @@ void startothers(void){
 	*(void**)(code-8) = stack + KSTACKSIZE;
 	*(void**)(code-16) = mpenter;
 	*(void**)(code-24) = (void*)V2P(entrypml4t);
+	*(void**)(code-32) = (void*)V2P(entrypml5t);
 
 	lapicstartap(c->apicid, V2P(code));
 
 	while (c->started == 0);
 	}
 }
+
+__attribute__((__aligned__(PGSIZE)))
+uintptr_t entrypml5t[512] = {
+	[0] = V2P(entrypml4t) + (PTE_P | PTE_W),
+	[511] = V2P(entrypml4t) + (PTE_P | PTE_W),
+};
 
 __attribute__((__aligned__(PGSIZE)))
 uintptr_t entrypml4t[512] = {
@@ -119,6 +120,6 @@ uintptr_t entrypdpt[512] = {
 
 __attribute__((__aligned__(PGSIZE)))
 uintptr_t entrypgdir[512] = {
-	[0] = 0x00000000 + (PTE_P | PTE_W | PTE_PS),
-	[1] = 0x00200000 + (PTE_P | PTE_W | PTE_PS),
+	[0] = 0x00000000 | PTE_P | PTE_W | PTE_PS,
+	[1] = 0x00200000 | PTE_P | PTE_W | PTE_PS,
 };

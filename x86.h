@@ -11,8 +11,8 @@ static inline void outb(uint16_t port, uint8_t data){
 
 static inline void insl(uint16_t port, void *addr, uint32_t cnt){
 	asm volatile("rep insl"
-				: "=D" (addr), "=c" (cnt)
-				: "d" (port), "0" (addr), "1" (cnt)
+				:
+				: "d" (port), "D" (addr), "c" (cnt)
 				: "memory", "cc");
 }
 
@@ -66,6 +66,13 @@ static inline void cli(void){
 
 static inline void sti(void){
 	asm volatile("sti");
+}
+
+static inline void cpuid(int code, uint32_t *a, uint32_t *b,
+				uint32_t *c, uint32_t *d){
+	asm volatile("cpuid" 
+				: "=a" (*a), "=b" (*b), "=c" (*c), "=d" (*d)
+				: "a" (code));
 }
 
 static inline void wrmsr(uint32_t msr, uint64_t data){

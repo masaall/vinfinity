@@ -91,10 +91,12 @@ fs.img: mkfs $(UPROGS)
 	./mkfs fs.img $(UPROGS)					
 
 qemu: vin.img fs.img
-	qemu-system-x86_64 -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
+#	qemu-system-x86_64 -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
+	qemu-system-x86_64 -cpu qemu64,+la57,+lm -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
 
 qemu1: vin.img fs.img
-	qemu-system-x86_64 -serial mon:stdio -smp 2,cores=1 -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
+#	qemu-system-x86_64 -serial mon:stdio -smp 2,cores=1 -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
+	qemu-system-x86_64 -cpu qemu64,+la57,+lm -serial mon:stdio -smp 2,cores=1 -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
 
 clean:
-	rm -f *.o *.out boot kernel entryother initcode *.img $(UPROGS)
+	rm -f *.o *.out boot kernel entryother initcode *.img mkfs $(UPROGS)

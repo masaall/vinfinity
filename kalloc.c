@@ -33,8 +33,8 @@ void kinit2(void *start, void *end){
 
 void freerange(char *start, char *end){
 
-	start = (char*)PGUP((uintptr_t)start);
-	for (; start < end; start += PGSIZE)
+	start = (void*)PGUP((uintptr_t)start);
+	for (; start + PGSIZE <= end; start += PGSIZE)
 		kfree(start);
 }
 
@@ -46,17 +46,15 @@ void kfree(void *v){
 		acquire(&kmem.lock);
 
 	if ((uintptr_t)v % PGSIZE || (char*)v < end || V2P(v) >= PHYSTOP)
-		panic("kfree");
+		panic("kfree");	
 
-	b = (struct block*)v;
+	b = v;
 	b->next = NULL;
-
 	if (kmem.tail){
 		kmem.tail->next = b;
 		kmem.tail = b;
 	} else {
-		kmem.head = b;
-		kmem.tail = b;
+		kmem.head = kmem.tail = b;
 	}
 
 	if (kmem.use_lock)
@@ -82,7 +80,6 @@ void *kalloc(void){
 	if (kmem.head == NULL)
 		kmem.tail = NULL;
 
-	memset(b, 0, PGSIZE);
 	if (kmem.use_lock)
 		release(&kmem.lock);
 

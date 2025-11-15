@@ -12,8 +12,7 @@ void render_menu(void){
 }
 
 void tetris(void){
-
 	screen_init();
 	render_menu();
-	
+	screen_swap();
 }

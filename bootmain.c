@@ -9,15 +9,14 @@
 void readseg(char*, uintptr_t, uintptr_t);
 
 void bootmain(void){
-	uint16_t *crt = (uint16_t*)0xb8000;
+	uint16_t *crt = (void*)0xb8000;
 
 	struct elfhdr *elf;
 	struct proghdr *ph, *eph;
-	char *pa;
 	void (*entry)(void);
 
 	elf = (struct elfhdr*)0x10000;
-	readseg((char*)elf, 0x1000, 0);
+	readseg((void*)elf, sizeof(struct elfhdr), 0);
 
 	if (elf->magic != ELF_MAGIC){
 		crt[0] = 'E' | 0x0700;
@@ -26,13 +25,12 @@ void bootmain(void){
 
 	ph = (struct proghdr*)((char*)elf + elf->phoff);
 	eph = ph + elf->phnum;
-	for ( ;ph < eph; ph++){
-		pa = (char*)ph->paddr;
-		readseg(pa, ph->filesz, ph->offset);
+	for (; ph < eph; ph++){
+		readseg((void*)ph->paddr, ph->filesz, ph->offset);
 		if (ph->memsz > ph->filesz)
-			stosb(pa + ph->filesz, 0, ph->memsz - ph->filesz);
+			stosb((void*)ph->paddr+ph->filesz, 0, ph->memsz-ph->filesz);	
 	}
-	entry = (void(*)(void))(elf->entry);
+	entry = (void*)(elf->entry);
 	entry(); 
 }
 
@@ -53,12 +51,13 @@ void readsect(void *addr, uintptr_t sector){
 	insl(0x1f0, addr, SECTSIZE/4);
 }
 
-void readseg(char *pa, uintptr_t size, uintptr_t sector){
+void readseg(char *paddr, uintptr_t size, uintptr_t offset){
 
-	char *epa;
+	char *epaddr;
+	uintptr_t sector;
 
-	epa = pa + size;
-	sector = (sector / SECTSIZE) + 35;
-	for (; pa < epa; pa += SECTSIZE, sector++)
-		readsect(pa, sector);
+	epaddr = paddr + size;
+	sector = (offset / SECTSIZE) + 35;
+	for (; paddr < epaddr; paddr += SECTSIZE, sector++)
+		readsect(paddr, sector);
 }

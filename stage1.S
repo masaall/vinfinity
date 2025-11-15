@@ -10,8 +10,8 @@ start:
 	mov $2,%cl
 	mov $0,%dh
 	call read_disk
-
-/*	mov $0x00,%ah
+/*
+	mov $0x00,%ah
 	mov $0x13,%al
 	int $0x10
 */

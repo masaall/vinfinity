@@ -60,8 +60,8 @@ int main(int argc, char *argv[]){
 	sb.inodestart = 2 + nlog;
 	sb.bmapstart = 2 + nlog + ninodeblock;
 
-	printf("nmeta %d (boot, super, log block %d inode block %d, bitmap block %d) block %d total %d \n",
-		 nmeta, nlog, ninodeblock, nbitmap, nblock, FSSIZE);
+//	printf("nmeta %d (boot, super, log block %d inode block %d, bitmap block %d) block %d total %d \n",
+//		 nmeta, nlog, ninodeblock, nbitmap, nblock, FSSIZE);
 
 	freeblock = nmeta;
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]){
 			exit(1);
 		}
 
-		if (argv[i][0] == '_') ++argv[i];
+		if (*argv[i] == '_') ++argv[i];
 
 		inum = ialloc(T_FILE);
 
@@ -148,7 +148,7 @@ void winode(uint32_t inum, struct dinode *ip){
 	sect = IBLOCK(inum, sb);
 	rsect(sect, buf);
 	dip = (struct dinode*)buf + inum%IPB;
-	*dip = *ip;
+	memmove(dip, ip, sizeof(*dip));
 	wsect(sect, buf);
 }
 
@@ -161,7 +161,7 @@ void rinode(uint32_t inum, struct dinode *ip){
 	sect = IBLOCK(inum, sb);
 	rsect(sect, buf);
 	dip = (struct dinode*)buf + inum%IPB;
-	*ip = *dip;
+	memmove(ip, dip, sizeof(*dip));
 }
 
 uint32_t ialloc(short type){
@@ -187,7 +187,7 @@ void iappend(uint32_t inum, void *xp, uint32_t n){
 
 	rinode(inum, &din);
 	off = din.size;
-//	printf("append inum %d at off %d n %d \n", inum, off, n);
+//	printf("append inum %d at off %d fbn %d n %d \n", inum, off, fbn, n);
 	while (n > 0){
 		fbn = off/BSIZE;
 		if (fbn < NDIRECT){

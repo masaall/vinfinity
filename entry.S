@@ -7,7 +7,7 @@
 _start = V2P_WO(entry)
 entry:
 
-	movq $V2P_WO(entrypml4t),%rax
+	movq $V2P_WO(entrypml5t),%rax
 	movq %rax,%cr3
 
 	movq $(stack + KSTACKSIZE),%rsp

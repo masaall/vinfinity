@@ -32,10 +32,11 @@ start32:
 	movl %eax,%cr3
 
 	mov %cr4,%eax
-	or $(1<<5),%eax
+	or $(1<<5|1<<12),%eax
 	mov %eax,%cr4
 
 	mov $0xc0000080,%ecx
+	rdmsr
 	or $(1<<8),%eax
 	wrmsr
 

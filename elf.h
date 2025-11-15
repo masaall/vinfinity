@@ -29,3 +29,5 @@ struct proghdr {
 	uint64_t memsz;
 	uint64_t align;
 };
+
+#define ELF_PROG_LOAD 1

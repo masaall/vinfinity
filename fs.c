@@ -197,25 +197,29 @@ uint32_t bmap(struct inode *ip, uint32_t fbn){
 	panic("bmap: out of range");
 }
 
-int readi(struct inode *ip, char *dst, uint32_t off, uint32_t n){
+int readi(struct inode *ip, void *dst, uint32_t off, uint32_t n){
 
 	uint32_t tot, n1;
-	struct buf *buf;
+	struct buf *bp;
+
+	if (ip->type == T_DEV){
+		
+	}
 
 	if (off > ip->size)
 		return -1;
 
 	for (tot = 0; tot < n; tot += n1, off += n1, dst += n1){
-		buf = bufread(ip->dev, bmap(ip, off/BSIZE));
+		bp = bufread(ip->dev, bmap(ip, off/BSIZE));
 		n1 = min(n - tot, BSIZE - off%BSIZE);
-		memmove(dst, buf->data + off%BSIZE, n1);
-		brelse(buf);
+		memmove(dst, bp->data + off%BSIZE, n1);
+		brelse(bp);
 	}
 
 	return n;
 }
 
-int writei(struct inode *ip, char *src, uint32_t off, uint32_t n){
+int writei(struct inode *ip, void *src, uint32_t off, uint32_t n){
 
 	uint32_t tot, n1;
 	struct buf *bp;
@@ -254,7 +258,7 @@ struct inode *dirlookup(struct inode *ip, char *name){
 	uint32_t off;
 
 	for (off = 0; off < ip->size; off += sizeof(de)){
-		if (readi(ip, (char*)&de, off, sizeof(de)) != sizeof(de))
+		if (readi(ip, &de, off, sizeof(de)) != sizeof(de))
 			panic("dirlookup");
 		if (de.inum == 0) continue;	
 		if (namecmp(name, de.name) == 0){
@@ -277,7 +281,7 @@ int dirlink(struct inode *dp, char *name, uint32_t inum){
 	}
 
 	for (off = 0; off < dp->size; off += sizeof(de)){
-		if (readi(dp, (void*)&de, off, sizeof(de)) != sizeof(de))
+		if (readi(dp, &de, off, sizeof(de)) != sizeof(de))
 			panic("dirlink");
 		if (de.inum == 0)
 			break;
@@ -285,7 +289,7 @@ int dirlink(struct inode *dp, char *name, uint32_t inum){
 
 	strncpy(de.name, name, DIRSIZ);
 	de.inum = inum;
-	if (writei(dp, (void*)&de, off, sizeof(de)) != sizeof(de))
+	if (writei(dp, &de, off, sizeof(de)) != sizeof(de))
 		panic("dirlink");
 
 	return 0;

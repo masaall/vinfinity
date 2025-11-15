@@ -23,7 +23,7 @@ start32:
 	movl %eax,%cr3
 
 	mov %cr4,%eax
-	or $(1<<5),%eax
+	or $(1<<5|1<<12),%eax
 	mov %eax,%cr4
 
 	mov $0xc0000080,%ecx
@@ -44,10 +44,7 @@ start64:
 	mov %ax,%es
 	mov %ax,%ss
 
-	movq $0,%rax
-	movq %rax,(start-32)
-
-	mov (start-24),%rax
+	mov (start-32),%rax
 	mov %rax,%cr3
 
 	mov (start-8),%rsp

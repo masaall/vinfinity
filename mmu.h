@@ -15,14 +15,15 @@
 #define PTE_U	0x004
 #define PTE_PS	0x080
 
-#define PMLX(a) (((uintptr_t)(a) >> PMLTSHIFT) & 0x1ff)
+#define PML5X(a) (((uintptr_t)(a) >> PML5SHIFT) & 0x1ff)
+#define PML4X(a) (((uintptr_t)(a) >> PML4SHIFT) & 0x1ff)
 #define PDPX(a) (((uintptr_t)(a) >> PDPTSHIFT) & 0x1ff)
 #define PDX(a)	(((uintptr_t)(a) >> PDSHIFT) & 0x1ff)
 #define PTX(a)	(((uintptr_t)(a) >> PTSHIFT) & 0x1ff)
 
-#define PGADDR(pmlt, pdpt, pgdir, pgtab, offset)		\
+#define PGADDR(pml4t, pdpt, pgdir, pgtab, offset)	\
 		(												\
-		((uintptr_t)(pmlt)	<< PMLTSHIFT)	|			\
+		((uintptr_t)(pml4t)	<< PML4SHIFT)	|			\
  		((uintptr_t)(pdpt)	<< PDPTSHIFT)	|			\
  		((uintptr_t)(pgdir)	<< PDSHIFT)		|			\
  		((uintptr_t)(pgtab)	<< PTSHIFT)		|			\
@@ -32,7 +33,8 @@
 #define PG_ADDR(a) 	((a) & ~0xfff)
 #define PG_FLAG(a)	((a) &  0xfff)
 
-#define PMLTSHIFT 39
+#define PML5SHIFT 48
+#define PML4SHIFT 39
 #define PDPTSHIFT 30
 #define PDSHIFT 21
 #define PTSHIFT 12

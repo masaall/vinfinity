@@ -14,6 +14,7 @@ void set_gdt(struct cpu *c, int i, uint8_t access, uint8_t gran){
 }
 
 void gdtinstall(void){
+
 	struct cpu *c = mycpu();
 
 	set_gdt(c, 1, 0x9a, 0xa0);

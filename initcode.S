@@ -10,10 +10,13 @@ start:
 	mov $argv,%rsi
 	int $T_SYSCALL
 */
-
 	mov $SYS_exec,%rax
 	mov $init,%rdi
 	mov $argv,%rsi
+	syscall
+
+exit:
+	mov $SYS_exit,%rax
 	syscall
 
 init:

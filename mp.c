@@ -60,7 +60,7 @@ void mpinit(void){
 
 	if ((conf = mpconfig()) == 0)
 		panic("mpinit");
-	lapic = P2V_DEV(conf->lapicaddr);
+	lapic = P2V_DEV((uintptr_t)conf->lapicaddr);
 	p = (char*)(conf+1);
 	e = (char*)conf+conf->length;
 	for (; p < e;){

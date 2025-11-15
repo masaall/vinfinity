@@ -210,6 +210,28 @@ void consintr(int (*getc)(void)){
 	release(&cons.lock);
 }
 
+int consoleread(struct inode *ip, char *dst, int n){
+
+	int c;
+
+	iunlock(ip);
+	acquire(&cons.lock);
+	while (n > 0){
+		while (input.r == input.w){
+			sleep(&input.r, &cons.lock);
+		}
+
+		c = input.buf[input.r++ % INPUT_BUF];
+
+		*dst++ = c;
+	}
+
+	release(&cons.lock);
+	ilock(ip);
+
+	return n;
+}
+
 int consolewrite(struct inode *ip, char *addr, int n){
 
 	iunlock(ip);
@@ -217,7 +239,7 @@ int consolewrite(struct inode *ip, char *addr, int n){
 	for (int i = 0; i < n; i++)
 		consputc(addr[i] & 0xff);
 
-	release(&cons.lock);	
+	release(&cons.lock);
 	ilock(ip);
 
 	return n;	
@@ -228,6 +250,7 @@ void consoleinit(void){
 	initlock(&cons.lock, "console");
 	
 	devsw[CONSOLE].write = consolewrite;
+	devsw[CONSOLE].read = consoleread;
 
 	cons.locking = 1;
 
