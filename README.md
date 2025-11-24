@@ -10,3 +10,4 @@ Feature:
 # VinfinityOS
 
 ## Overview
+A 64-bit operating systeem built from scratch.
