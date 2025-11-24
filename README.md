@@ -15,3 +15,4 @@ A 64-bit operating systeem built from scratch.
 ## Features
 
 ### **Core System**
+- **Custom Boadloader** - Handles transition to 64-bit mode
