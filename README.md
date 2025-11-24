@@ -18,4 +18,4 @@ A 64-bit operating system built from scratch.
 ### **Technical Stack**
 - **Languages**: C (kernel), AT&T Assembly (bootloader)
 - **Architecture**: x86-64
-- **Tools**: Makefile, elf-gcc
+- **Tools**: Makefile, elf-gcc, qemu
