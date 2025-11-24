@@ -6,7 +6,7 @@ A 64-bit operating system built from scratch.
 ## Features
 
 ### **Core System**
-- **Custom Boadloader** - Handles transition to 64-bit mode
+- **Custom Bootloader** - Handles transition to 64-bit mode
 - **5-Level Paging** - PML5 -> PML4 -> PDP -> PD -> PT (x86-64 modern standard)
 - **Physical Memory Allocator** - Custom 'kalloc()', 'kfree()' implementation
 - **VGA Text Mode** - Console output system
