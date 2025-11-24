@@ -11,7 +11,11 @@ A 64-bit operating system built from scratch.
 - **Physical Memory Allocator** - Custom 'kalloc', 'kfree' implementation
 - **VGA Text Mode** - Console output system
 
-## Technical Stack
+### **Userspace**
+- **Simple Process Management** - 'fork()', 'exit()', 'wait()' system calls
+- **Userspace Programs** - Includes Sudoku solver running in userspace
+
+### **Technical Stack**
 - **Languages**: C (kernel), AT&T Assembly (bootloader)
 - **Architecture**: x86-64
 - **Tools**: Makefile, elf-gcc
