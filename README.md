@@ -5,6 +5,6 @@ Feature:
   2. 64-bit kernel
   3. VGA text mode
   4. Physical memory allocator
-  5. 4-level paging (PML -> PDP -> PD -> PT)
+  5. 5-level paging (PML5 -> PML4 -> PDP -> PD -> PT)
 
      
