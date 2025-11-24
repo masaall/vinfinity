@@ -14,4 +14,4 @@ A 64-bit operating systeem built from scratch.
 
 ## Features
 
-### Core System
+### **Core System**
