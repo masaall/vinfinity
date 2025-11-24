@@ -7,4 +7,6 @@ Feature:
   4. Physical memory allocator
   5. 5-level paging (PML5 -> PML4 -> PDP -> PD -> PT)
 
-# VinfinityOS - x86-64 Operating System
+# VinfinityOS
+
+## Overview
