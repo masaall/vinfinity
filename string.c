@@ -46,7 +46,7 @@ void *memmove(void *dst, const void *src, size_t n){
 
 int memcmp(const void *v1, const void *v2, size_t n){
 
-	const char *s1, *s2;
+	const uint8_t *s1, *s2;
 
 	s1 = v1;
 	s2 = v2;

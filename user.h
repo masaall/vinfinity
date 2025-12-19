@@ -8,6 +8,7 @@ char *sbrk(int);
 int open(const char*, int);
 int mknod(const char*, short, short);
 int dup(int);
+int exec(char*, char**);
 
 void putc(int, char);
 void printf(const char*, ...);

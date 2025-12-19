@@ -36,6 +36,7 @@ struct inode *ialloc(uint32_t, short);
 struct inode *idup(struct inode*);
 void iinit(uint32_t);
 void ilock(struct inode*);
+void iput(struct inode*);
 void iunlock(struct inode*);
 void iunlockput(struct inode*);
 void iupdate(struct inode*);

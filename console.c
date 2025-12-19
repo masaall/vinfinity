@@ -14,18 +14,18 @@
 #define BACKSPACE 0x100
 
 static uint16_t *crt = P2V(0xb8000);
-static int panicked = 0;
+static bool panicked = false;
 
 struct {
 	struct spinlock lock;
 	int locking;
 } cons;
 
-void consputc(int c);
+static void consputc(int c);
 
 static void printint(long xx, int base, bool sign){
 
-	static char digits[] = "0123456789abcdef";
+	static char *digits = "0123456789abcdef";
 	char buf[21];
 	uint64_t x;
 	int i;
@@ -76,6 +76,22 @@ void cprintf(const char *fmt, ...){
 		case 'b':
 			printint(va_arg(va, uint32_t), 2, false);
 			break;
+		case 'l':
+			c = fmt[++i];
+			switch (c) {
+				case 'd':
+					printint(va_arg(va, long), 10, true);
+					break;
+				case 'x':
+					printint(va_arg(va, uint64_t), 16, false);
+					break;
+				default:
+					consputc('%');
+					consputc('l');
+					consputc(c);
+					break;	
+			}
+			break;
 		case 's':
 			if ((s = va_arg(va, char*)) == 0)
 				s = "null string";
@@ -112,7 +128,7 @@ void panic(char *s){
 	for (int i = 0; i < 10; i++)
 		cprintf(" %p", pcs[i]);
 	cprintf("\n");
-	panicked = 1;
+	panicked = true;
 	for (;;);
 }
 
@@ -141,7 +157,10 @@ static void cgaputc(int c){
 	else if (c == BACKSPACE){
 		if (pos > 0) pos--;
 	} else 
-		crt[pos++] = 0x0a00 | c;
+		if (pos % 2)
+			crt[pos++] = 0x0a00 | c;
+		else 
+			crt[pos++] = 0x0b00 | c;
 
 	if (pos >= 24*80){
 		memmove(crt, crt+80, sizeof(crt[0])*23*80);
@@ -153,7 +172,10 @@ static void cgaputc(int c){
 	outb(CRTPORT+1, pos >> 8);
 	outb(CRTPORT, 15);
 	outb(CRTPORT+1, pos);
-	crt[pos] = 0x0a00 | ' ';
+	if (pos % 2)
+		crt[pos] = 0x0a00 | ' ';
+	else
+		crt[pos] = 0x0b00 | ' ';
 }
 
 void consputc(int c){
@@ -189,10 +211,10 @@ void consintr(int (*getc)(void)){
 	while ((c = getc()) >= 0){
 		switch (c){
 		case C('H'):
-			if (input.e != input.w){
+//			if (input.e != input.w){
 				input.e--;
 				consputc(BACKSPACE);
-			}
+//			}
 			break;
 		default:
 			if (c != 0 && input.e-input.r < INPUT_BUF){

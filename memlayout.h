@@ -1,5 +1,5 @@
 
-#define PHYSTOP 0x8000000
+#define PHYSTOP 0xe000000
 #define DEVSPACE 0xfe000000
 
 #define KERNBASE 0xffffffff80000000

@@ -20,13 +20,13 @@ start32:
 	mov %ax,%ss
 
 	movl $pml4t,%edi
-	movl $(pdpt+(PTE_P|PTE_W)),0(%edi)
+	movl $(pdpt+(PTE_P|PTE_W)),(%edi)
 
 	movl $pdpt,%edi
-	movl $(pgdir+(PTE_P|PTE_W)),0(%edi)
+	movl $(pgdir+(PTE_P|PTE_W)),(%edi)
 
 	movl $pgdir,%edi
-	movl $(0x00000000+(PTE_P|PTE_W|PTE_PS)),0(%edi)
+	movl $(0x00000000+(PTE_P|PTE_W|PTE_PS)),(%edi)
 
 	movl $pml4t,%eax
 	movl %eax,%cr3
@@ -67,13 +67,13 @@ print:
 	mov %ax,(%rbx)
 	add $2,%rbx
 	jmp .start_print
-.end_print:	
+.end_print:
 	ret
 
 gdt:
 	.quad 0
 	.quad 0x00cf9a000000ffff
-	.quad 0x00cf92000000ffff
+	.quad 0x000f92000000ffff
 
 gdtdesc:
 	.word (gdtdesc - gdt - 1)
@@ -82,7 +82,7 @@ gdtdesc:
 gdt1:
 	.quad 0
 	.quad 0x00a09a0000000000
-	.quad 0x00a0920000000000
+	.quad 0x0000920000000000
 
 gdtdesc1:
 	.word (gdtdesc1 - gdt1 - 1)

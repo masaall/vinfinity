@@ -20,7 +20,7 @@ struct tss {
 
 struct tss_ext {
 	uint32_t base_highest;
-	uint32_t pad;	
+	uint32_t pad;
 } __attribute__((packed));
 
 struct pointer {
@@ -33,4 +33,4 @@ struct gdtAll {
 	struct tss_ext tss_ext;	
 	struct tss tss;
 	struct pointer pointer;
-};
+} __attribute__((packed));

@@ -42,12 +42,10 @@ struct cpu *mycpu(void){
 
 struct proc *myproc(void){
 
-	struct cpu *c;
 	struct proc *p;
 
 	pushcli();
-	c = mycpu();
-	p = c->proc;
+	p = mycpu()->proc;
 	popcli();
 
 	return p;
@@ -57,7 +55,6 @@ struct proc *allocproc(void){
 
 	struct proc *p;
 	char *stack;
-//	static int first = true;
 
 	acquire(&ptable.lock);
 
@@ -82,18 +79,11 @@ found:
 
 	stack -= sizeof(*p->regs);
 	p->regs = (struct regs*)stack;
+	memset(p->regs, 0, sizeof(*p->regs));
 
 	stack -= 8;
 	*(void**)stack = touser;
 
-/*	stack -= 8;
-	if (first){
-		first = false;
-		*(void**)stack = touser;
-	} else {
-		*(void**)stack = touser1;
-	}
-*/
 	stack -= sizeof(*p->context);
 	p->context = (struct context*)stack;
 	memset(p->context, 0, sizeof(*p->context));
@@ -113,7 +103,6 @@ void userinit(void){
 	p->pml5t = setupkvm();
 	inituvm(p->pml5t, _binary_initcode_start, (uintptr_t)_binary_initcode_size);
 	p->size = PGSIZE;
-	memset(p->regs, 0, sizeof(*p->regs));
 	p->regs->cs = 0x2b;
 	p->regs->ss = 0x23;
 	p->regs->rsp = PGSIZE;
@@ -137,7 +126,7 @@ int growproc(int n){
 		if ((size = allocuvm(curproc->pml5t, size, size + n)) == 0)
 			return -1;
 	} else if (n < 0) {
-		if (( size = deallocuvm(curproc->pml5t, size, size + n)) == 0)
+		if ((size = deallocuvm(curproc->pml5t, size, size + n)) == 0)
 			return -1;
 	}
 	curproc->size = size;
@@ -175,18 +164,30 @@ int fork(void){
 	acquire(&ptable.lock);
 	newproc->state = RUNNABLE;
 	release(&ptable.lock);
-	
-	return pid;	
+
+	return pid;
 }
 
 void exit(void){
+
+	int fd;
 
 	struct proc *curproc = myproc();
 
 	if (curproc == initproc)
 		panic("init exiting");
 
-	acquire(&ptable.lock);	
+	for (fd = 0; fd < NOFILE; fd++){
+		if (curproc->ofile[fd]){
+			fileclose(curproc->ofile[fd]);
+			curproc->ofile[fd] = 0;
+		}
+	}
+
+	iput(curproc->cwd);
+	curproc->cwd = 0;
+
+	acquire(&ptable.lock);
 
 	wakeup1(curproc->parent);
 
@@ -274,10 +275,7 @@ void sleep(void *chan, struct spinlock *lock){
 
 	struct proc *p = myproc();
 
-	if (p == 0)
-		panic("sleep");
-
-	if (lock == 0)
+	if (p == 0 || lock == 0)
 		panic("sleep");
 
 	if (lock != &ptable.lock){

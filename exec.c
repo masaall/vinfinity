@@ -23,12 +23,13 @@ int exec(char *path, char **argv){
 	struct proc *curproc = myproc();
 	uintptr_t *pml5t, *oldpml5t;
 	uint32_t i, off, argc;
-	uintptr_t size;
+	uintptr_t size, stack;
 
 	if ((ip = namei(path)) == 0){
 		cprintf("exec: fail\n");
 		return -1;
 	}
+
 	ilock(ip);
 	pml5t = 0;
 
@@ -49,12 +50,14 @@ int exec(char *path, char **argv){
 		if (loaduvm(pml5t, ip, ph.vaddr, ph.offset, ph.filesz) < 0)
 			goto bad;
 	}
+	
 	iunlockput(ip);
 	ip = 0;
 
 	size = PGUP(size);
 	if ((size = allocuvm(pml5t, size, size + 2*PGSIZE)) == 0)
-		goto bad;	
+		goto bad;
+	stack = size;	
 
 	for (argc = 0; argv[argc]; argc++){
 		
@@ -64,6 +67,7 @@ int exec(char *path, char **argv){
 	curproc->pml5t = pml5t;
 	curproc->size = size;
 	curproc->regs->rip = elf.entry;
+	curproc->regs->rsp = stack;
 	switchuvm(curproc);
 	freevm(oldpml5t);
 

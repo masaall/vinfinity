@@ -15,7 +15,7 @@
 struct idt idt[256];
 struct spinlock tickslock;
 
-struct idtr {
+struct {
 	uint16_t size;
 	uintptr_t base;
 } __attribute__((packed)) idtr = {
@@ -58,7 +58,7 @@ void isr_handler(struct regs *r){
 		syscall_handler(r);
 		return;
 	}
-
+	
 	switch (r->no){
 	case T_IRQ0 + IRQ_TIMER:
 		if (mycpu()->apicid == 0){
@@ -97,5 +97,5 @@ void isr_handler(struct regs *r){
 		myproc()->killed = true;	
 	}
 	if (myproc() && myproc()->killed && (r->cs&DPL_USER) == DPL_USER)
-		exit();	
+		exit();
 }

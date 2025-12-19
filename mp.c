@@ -11,9 +11,9 @@ struct cpu cpus[NCPU];
 int ncpu;
 uint8_t ioapicid;
 
-uint8_t sum(char *addr, int n){
+uint8_t sum(uint8_t *addr, size_t n){
 
-	int i, sum;
+	size_t i, sum;
 
 	sum = 0;
 	for (i = 0; i < n; i++)
@@ -22,21 +22,22 @@ uint8_t sum(char *addr, int n){
 	return sum;
 }
 
-struct mp *mpsearch1(uintptr_t addr, uintptr_t size){
+struct mp *mpsearch1(uintptr_t start, size_t size){
 
-	char *start, *end;
+	uint8_t *addr, *end;
 
-	start = P2V(addr);
-	end = start + size;
-	for (; start < end; start += sizeof(struct mp)){
-		if (memcmp(start,"_MP_",4) == 0 && sum(start,sizeof(struct mp)) == 0)
-			return (struct mp*)start;
-	}
+	addr = P2V(start);
+	end = addr + size;
+	for (; addr < end; addr += sizeof(struct mp))
+		if (memcmp(addr, "_MP_", 4) == 0 
+			&& sum(addr, sizeof(struct mp)) == 0)
+				return (struct mp*)addr;
+	
 	return 0;
 }
 
 struct mp *mpsearch(void){
-	return mpsearch1(0xf0000, 0x10000);
+	return mpsearch1(0xf5000, 0x10000);
 }
 
 struct mpconf *mpconfig(void){
@@ -56,14 +57,14 @@ void mpinit(void){
 	struct mpconf *conf;
 	struct mpproc *proc;
 	struct mpioapic *ioapic;
-	char *p, *e;
+	uint8_t *p, *e;
 
 	if ((conf = mpconfig()) == 0)
 		panic("mpinit");
 	lapic = P2V_DEV((uintptr_t)conf->lapicaddr);
-	p = (char*)(conf+1);
-	e = (char*)conf+conf->length;
-	for (; p < e;){
+	p = (uint8_t*)(conf+1);
+	e = (uint8_t*)conf+conf->length;
+	while (p < e){
 		switch (*p){
 		case MPPROC:
 			proc = (struct mpproc*)p;
@@ -82,7 +83,7 @@ void mpinit(void){
 		case MPIOINTR:
 		case MPLINTR:
 			p += 8;
-			continue;
+			continue;	
 		}
 	}
 }

@@ -1,1020 +1,1276 @@
 vector0: 
- pushq $0
- pushq $0
+ push $0
+ push $0
  jmp isr_entry
+
 vector1: 
- pushq $0
- pushq $1
+ push $0
+ push $1
  jmp isr_entry
+
 vector2: 
- pushq $0
- pushq $2
+ push $0
+ push $2
  jmp isr_entry
+
 vector3: 
- pushq $0
- pushq $3
+ push $0
+ push $3
  jmp isr_entry
+
 vector4: 
- pushq $0
- pushq $4
+ push $0
+ push $4
  jmp isr_entry
+
 vector5: 
- pushq $0
- pushq $5
+ push $0
+ push $5
  jmp isr_entry
+
 vector6: 
- pushq $0
- pushq $6
+ push $0
+ push $6
  jmp isr_entry
+
 vector7: 
- pushq $0
- pushq $7
+ push $0
+ push $7
  jmp isr_entry
+
 vector8: 
- pushq $8
+ push $8
  jmp isr_entry
+
 vector9: 
- pushq $0
- pushq $9
+ push $0
+ push $9
  jmp isr_entry
+
 vector10: 
- pushq $10
+ push $10
  jmp isr_entry
+
 vector11: 
- pushq $11
+ push $11
  jmp isr_entry
+
 vector12: 
- pushq $12
+ push $12
  jmp isr_entry
+
 vector13: 
- pushq $13
+ push $13
  jmp isr_entry
+
 vector14: 
- pushq $14
+ push $14
  jmp isr_entry
+
 vector15: 
- pushq $0
- pushq $15
+ push $0
+ push $15
  jmp isr_entry
+
 vector16: 
- pushq $0
- pushq $16
+ push $0
+ push $16
  jmp isr_entry
+
 vector17: 
- pushq $17
+ push $17
  jmp isr_entry
+
 vector18: 
- pushq $0
- pushq $18
+ push $0
+ push $18
  jmp isr_entry
+
 vector19: 
- pushq $0
- pushq $19
+ push $0
+ push $19
  jmp isr_entry
+
 vector20: 
- pushq $0
- pushq $20
+ push $0
+ push $20
  jmp isr_entry
+
 vector21: 
- pushq $0
- pushq $21
+ push $0
+ push $21
  jmp isr_entry
+
 vector22: 
- pushq $0
- pushq $22
+ push $0
+ push $22
  jmp isr_entry
+
 vector23: 
- pushq $0
- pushq $23
+ push $0
+ push $23
  jmp isr_entry
+
 vector24: 
- pushq $0
- pushq $24
+ push $0
+ push $24
  jmp isr_entry
+
 vector25: 
- pushq $0
- pushq $25
+ push $0
+ push $25
  jmp isr_entry
+
 vector26: 
- pushq $0
- pushq $26
+ push $0
+ push $26
  jmp isr_entry
+
 vector27: 
- pushq $0
- pushq $27
+ push $0
+ push $27
  jmp isr_entry
+
 vector28: 
- pushq $0
- pushq $28
+ push $0
+ push $28
  jmp isr_entry
+
 vector29: 
- pushq $0
- pushq $29
+ push $0
+ push $29
  jmp isr_entry
+
 vector30: 
- pushq $0
- pushq $30
+ push $0
+ push $30
  jmp isr_entry
+
 vector31: 
- pushq $0
- pushq $31
+ push $0
+ push $31
  jmp isr_entry
+
 vector32: 
- pushq $0
- pushq $32
+ push $0
+ push $32
  jmp isr_entry
+
 vector33: 
- pushq $0
- pushq $33
+ push $0
+ push $33
  jmp isr_entry
+
 vector34: 
- pushq $0
- pushq $34
+ push $0
+ push $34
  jmp isr_entry
+
 vector35: 
- pushq $0
- pushq $35
+ push $0
+ push $35
  jmp isr_entry
+
 vector36: 
- pushq $0
- pushq $36
+ push $0
+ push $36
  jmp isr_entry
+
 vector37: 
- pushq $0
- pushq $37
+ push $0
+ push $37
  jmp isr_entry
+
 vector38: 
- pushq $0
- pushq $38
+ push $0
+ push $38
  jmp isr_entry
+
 vector39: 
- pushq $0
- pushq $39
+ push $0
+ push $39
  jmp isr_entry
+
 vector40: 
- pushq $0
- pushq $40
+ push $0
+ push $40
  jmp isr_entry
+
 vector41: 
- pushq $0
- pushq $41
+ push $0
+ push $41
  jmp isr_entry
+
 vector42: 
- pushq $0
- pushq $42
+ push $0
+ push $42
  jmp isr_entry
+
 vector43: 
- pushq $0
- pushq $43
+ push $0
+ push $43
  jmp isr_entry
+
 vector44: 
- pushq $0
- pushq $44
+ push $0
+ push $44
  jmp isr_entry
+
 vector45: 
- pushq $0
- pushq $45
+ push $0
+ push $45
  jmp isr_entry
+
 vector46: 
- pushq $0
- pushq $46
+ push $0
+ push $46
  jmp isr_entry
+
 vector47: 
- pushq $0
- pushq $47
+ push $0
+ push $47
  jmp isr_entry
+
 vector48: 
- pushq $0
- pushq $48
+ push $0
+ push $48
  jmp isr_entry
+
 vector49: 
- pushq $0
- pushq $49
+ push $0
+ push $49
  jmp isr_entry
+
 vector50: 
- pushq $0
- pushq $50
+ push $0
+ push $50
  jmp isr_entry
+
 vector51: 
- pushq $0
- pushq $51
+ push $0
+ push $51
  jmp isr_entry
+
 vector52: 
- pushq $0
- pushq $52
+ push $0
+ push $52
  jmp isr_entry
+
 vector53: 
- pushq $0
- pushq $53
+ push $0
+ push $53
  jmp isr_entry
+
 vector54: 
- pushq $0
- pushq $54
+ push $0
+ push $54
  jmp isr_entry
+
 vector55: 
- pushq $0
- pushq $55
+ push $0
+ push $55
  jmp isr_entry
+
 vector56: 
- pushq $0
- pushq $56
+ push $0
+ push $56
  jmp isr_entry
+
 vector57: 
- pushq $0
- pushq $57
+ push $0
+ push $57
  jmp isr_entry
+
 vector58: 
- pushq $0
- pushq $58
+ push $0
+ push $58
  jmp isr_entry
+
 vector59: 
- pushq $0
- pushq $59
+ push $0
+ push $59
  jmp isr_entry
+
 vector60: 
- pushq $0
- pushq $60
+ push $0
+ push $60
  jmp isr_entry
+
 vector61: 
- pushq $0
- pushq $61
+ push $0
+ push $61
  jmp isr_entry
+
 vector62: 
- pushq $0
- pushq $62
+ push $0
+ push $62
  jmp isr_entry
+
 vector63: 
- pushq $0
- pushq $63
+ push $0
+ push $63
  jmp isr_entry
+
 vector64: 
- pushq $0
- pushq $64
+ push $0
+ push $64
  jmp isr_entry
+
 vector65: 
- pushq $0
- pushq $65
+ push $0
+ push $65
  jmp isr_entry
+
 vector66: 
- pushq $0
- pushq $66
+ push $0
+ push $66
  jmp isr_entry
+
 vector67: 
- pushq $0
- pushq $67
+ push $0
+ push $67
  jmp isr_entry
+
 vector68: 
- pushq $0
- pushq $68
+ push $0
+ push $68
  jmp isr_entry
+
 vector69: 
- pushq $0
- pushq $69
+ push $0
+ push $69
  jmp isr_entry
+
 vector70: 
- pushq $0
- pushq $70
+ push $0
+ push $70
  jmp isr_entry
+
 vector71: 
- pushq $0
- pushq $71
+ push $0
+ push $71
  jmp isr_entry
+
 vector72: 
- pushq $0
- pushq $72
+ push $0
+ push $72
  jmp isr_entry
+
 vector73: 
- pushq $0
- pushq $73
+ push $0
+ push $73
  jmp isr_entry
+
 vector74: 
- pushq $0
- pushq $74
+ push $0
+ push $74
  jmp isr_entry
+
 vector75: 
- pushq $0
- pushq $75
+ push $0
+ push $75
  jmp isr_entry
+
 vector76: 
- pushq $0
- pushq $76
+ push $0
+ push $76
  jmp isr_entry
+
 vector77: 
- pushq $0
- pushq $77
+ push $0
+ push $77
  jmp isr_entry
+
 vector78: 
- pushq $0
- pushq $78
+ push $0
+ push $78
  jmp isr_entry
+
 vector79: 
- pushq $0
- pushq $79
+ push $0
+ push $79
  jmp isr_entry
+
 vector80: 
- pushq $0
- pushq $80
+ push $0
+ push $80
  jmp isr_entry
+
 vector81: 
- pushq $0
- pushq $81
+ push $0
+ push $81
  jmp isr_entry
+
 vector82: 
- pushq $0
- pushq $82
+ push $0
+ push $82
  jmp isr_entry
+
 vector83: 
- pushq $0
- pushq $83
+ push $0
+ push $83
  jmp isr_entry
+
 vector84: 
- pushq $0
- pushq $84
+ push $0
+ push $84
  jmp isr_entry
+
 vector85: 
- pushq $0
- pushq $85
+ push $0
+ push $85
  jmp isr_entry
+
 vector86: 
- pushq $0
- pushq $86
+ push $0
+ push $86
  jmp isr_entry
+
 vector87: 
- pushq $0
- pushq $87
+ push $0
+ push $87
  jmp isr_entry
+
 vector88: 
- pushq $0
- pushq $88
+ push $0
+ push $88
  jmp isr_entry
+
 vector89: 
- pushq $0
- pushq $89
+ push $0
+ push $89
  jmp isr_entry
+
 vector90: 
- pushq $0
- pushq $90
+ push $0
+ push $90
  jmp isr_entry
+
 vector91: 
- pushq $0
- pushq $91
+ push $0
+ push $91
  jmp isr_entry
+
 vector92: 
- pushq $0
- pushq $92
+ push $0
+ push $92
  jmp isr_entry
+
 vector93: 
- pushq $0
- pushq $93
+ push $0
+ push $93
  jmp isr_entry
+
 vector94: 
- pushq $0
- pushq $94
+ push $0
+ push $94
  jmp isr_entry
+
 vector95: 
- pushq $0
- pushq $95
+ push $0
+ push $95
  jmp isr_entry
+
 vector96: 
- pushq $0
- pushq $96
+ push $0
+ push $96
  jmp isr_entry
+
 vector97: 
- pushq $0
- pushq $97
+ push $0
+ push $97
  jmp isr_entry
+
 vector98: 
- pushq $0
- pushq $98
+ push $0
+ push $98
  jmp isr_entry
+
 vector99: 
- pushq $0
- pushq $99
+ push $0
+ push $99
  jmp isr_entry
+
 vector100: 
- pushq $0
- pushq $100
+ push $0
+ push $100
  jmp isr_entry
+
 vector101: 
- pushq $0
- pushq $101
+ push $0
+ push $101
  jmp isr_entry
+
 vector102: 
- pushq $0
- pushq $102
+ push $0
+ push $102
  jmp isr_entry
+
 vector103: 
- pushq $0
- pushq $103
+ push $0
+ push $103
  jmp isr_entry
+
 vector104: 
- pushq $0
- pushq $104
+ push $0
+ push $104
  jmp isr_entry
+
 vector105: 
- pushq $0
- pushq $105
+ push $0
+ push $105
  jmp isr_entry
+
 vector106: 
- pushq $0
- pushq $106
+ push $0
+ push $106
  jmp isr_entry
+
 vector107: 
- pushq $0
- pushq $107
+ push $0
+ push $107
  jmp isr_entry
+
 vector108: 
- pushq $0
- pushq $108
+ push $0
+ push $108
  jmp isr_entry
+
 vector109: 
- pushq $0
- pushq $109
+ push $0
+ push $109
  jmp isr_entry
+
 vector110: 
- pushq $0
- pushq $110
+ push $0
+ push $110
  jmp isr_entry
+
 vector111: 
- pushq $0
- pushq $111
+ push $0
+ push $111
  jmp isr_entry
+
 vector112: 
- pushq $0
- pushq $112
+ push $0
+ push $112
  jmp isr_entry
+
 vector113: 
- pushq $0
- pushq $113
+ push $0
+ push $113
  jmp isr_entry
+
 vector114: 
- pushq $0
- pushq $114
+ push $0
+ push $114
  jmp isr_entry
+
 vector115: 
- pushq $0
- pushq $115
+ push $0
+ push $115
  jmp isr_entry
+
 vector116: 
- pushq $0
- pushq $116
+ push $0
+ push $116
  jmp isr_entry
+
 vector117: 
- pushq $0
- pushq $117
+ push $0
+ push $117
  jmp isr_entry
+
 vector118: 
- pushq $0
- pushq $118
+ push $0
+ push $118
  jmp isr_entry
+
 vector119: 
- pushq $0
- pushq $119
+ push $0
+ push $119
  jmp isr_entry
+
 vector120: 
- pushq $0
- pushq $120
+ push $0
+ push $120
  jmp isr_entry
+
 vector121: 
- pushq $0
- pushq $121
+ push $0
+ push $121
  jmp isr_entry
+
 vector122: 
- pushq $0
- pushq $122
+ push $0
+ push $122
  jmp isr_entry
+
 vector123: 
- pushq $0
- pushq $123
+ push $0
+ push $123
  jmp isr_entry
+
 vector124: 
- pushq $0
- pushq $124
+ push $0
+ push $124
  jmp isr_entry
+
 vector125: 
- pushq $0
- pushq $125
+ push $0
+ push $125
  jmp isr_entry
+
 vector126: 
- pushq $0
- pushq $126
+ push $0
+ push $126
  jmp isr_entry
+
 vector127: 
- pushq $0
- pushq $127
+ push $0
+ push $127
  jmp isr_entry
+
 vector128: 
- pushq $0
- pushq $128
+ push $0
+ push $128
  jmp isr_entry
+
 vector129: 
- pushq $0
- pushq $129
+ push $0
+ push $129
  jmp isr_entry
+
 vector130: 
- pushq $0
- pushq $130
+ push $0
+ push $130
  jmp isr_entry
+
 vector131: 
- pushq $0
- pushq $131
+ push $0
+ push $131
  jmp isr_entry
+
 vector132: 
- pushq $0
- pushq $132
+ push $0
+ push $132
  jmp isr_entry
+
 vector133: 
- pushq $0
- pushq $133
+ push $0
+ push $133
  jmp isr_entry
+
 vector134: 
- pushq $0
- pushq $134
+ push $0
+ push $134
  jmp isr_entry
+
 vector135: 
- pushq $0
- pushq $135
+ push $0
+ push $135
  jmp isr_entry
+
 vector136: 
- pushq $0
- pushq $136
+ push $0
+ push $136
  jmp isr_entry
+
 vector137: 
- pushq $0
- pushq $137
+ push $0
+ push $137
  jmp isr_entry
+
 vector138: 
- pushq $0
- pushq $138
+ push $0
+ push $138
  jmp isr_entry
+
 vector139: 
- pushq $0
- pushq $139
+ push $0
+ push $139
  jmp isr_entry
+
 vector140: 
- pushq $0
- pushq $140
+ push $0
+ push $140
  jmp isr_entry
+
 vector141: 
- pushq $0
- pushq $141
+ push $0
+ push $141
  jmp isr_entry
+
 vector142: 
- pushq $0
- pushq $142
+ push $0
+ push $142
  jmp isr_entry
+
 vector143: 
- pushq $0
- pushq $143
+ push $0
+ push $143
  jmp isr_entry
+
 vector144: 
- pushq $0
- pushq $144
+ push $0
+ push $144
  jmp isr_entry
+
 vector145: 
- pushq $0
- pushq $145
+ push $0
+ push $145
  jmp isr_entry
+
 vector146: 
- pushq $0
- pushq $146
+ push $0
+ push $146
  jmp isr_entry
+
 vector147: 
- pushq $0
- pushq $147
+ push $0
+ push $147
  jmp isr_entry
+
 vector148: 
- pushq $0
- pushq $148
+ push $0
+ push $148
  jmp isr_entry
+
 vector149: 
- pushq $0
- pushq $149
+ push $0
+ push $149
  jmp isr_entry
+
 vector150: 
- pushq $0
- pushq $150
+ push $0
+ push $150
  jmp isr_entry
+
 vector151: 
- pushq $0
- pushq $151
+ push $0
+ push $151
  jmp isr_entry
+
 vector152: 
- pushq $0
- pushq $152
+ push $0
+ push $152
  jmp isr_entry
+
 vector153: 
- pushq $0
- pushq $153
+ push $0
+ push $153
  jmp isr_entry
+
 vector154: 
- pushq $0
- pushq $154
+ push $0
+ push $154
  jmp isr_entry
+
 vector155: 
- pushq $0
- pushq $155
+ push $0
+ push $155
  jmp isr_entry
+
 vector156: 
- pushq $0
- pushq $156
+ push $0
+ push $156
  jmp isr_entry
+
 vector157: 
- pushq $0
- pushq $157
+ push $0
+ push $157
  jmp isr_entry
+
 vector158: 
- pushq $0
- pushq $158
+ push $0
+ push $158
  jmp isr_entry
+
 vector159: 
- pushq $0
- pushq $159
+ push $0
+ push $159
  jmp isr_entry
+
 vector160: 
- pushq $0
- pushq $160
+ push $0
+ push $160
  jmp isr_entry
+
 vector161: 
- pushq $0
- pushq $161
+ push $0
+ push $161
  jmp isr_entry
+
 vector162: 
- pushq $0
- pushq $162
+ push $0
+ push $162
  jmp isr_entry
+
 vector163: 
- pushq $0
- pushq $163
+ push $0
+ push $163
  jmp isr_entry
+
 vector164: 
- pushq $0
- pushq $164
+ push $0
+ push $164
  jmp isr_entry
+
 vector165: 
- pushq $0
- pushq $165
+ push $0
+ push $165
  jmp isr_entry
+
 vector166: 
- pushq $0
- pushq $166
+ push $0
+ push $166
  jmp isr_entry
+
 vector167: 
- pushq $0
- pushq $167
+ push $0
+ push $167
  jmp isr_entry
+
 vector168: 
- pushq $0
- pushq $168
+ push $0
+ push $168
  jmp isr_entry
+
 vector169: 
- pushq $0
- pushq $169
+ push $0
+ push $169
  jmp isr_entry
+
 vector170: 
- pushq $0
- pushq $170
+ push $0
+ push $170
  jmp isr_entry
+
 vector171: 
- pushq $0
- pushq $171
+ push $0
+ push $171
  jmp isr_entry
+
 vector172: 
- pushq $0
- pushq $172
+ push $0
+ push $172
  jmp isr_entry
+
 vector173: 
- pushq $0
- pushq $173
+ push $0
+ push $173
  jmp isr_entry
+
 vector174: 
- pushq $0
- pushq $174
+ push $0
+ push $174
  jmp isr_entry
+
 vector175: 
- pushq $0
- pushq $175
+ push $0
+ push $175
  jmp isr_entry
+
 vector176: 
- pushq $0
- pushq $176
+ push $0
+ push $176
  jmp isr_entry
+
 vector177: 
- pushq $0
- pushq $177
+ push $0
+ push $177
  jmp isr_entry
+
 vector178: 
- pushq $0
- pushq $178
+ push $0
+ push $178
  jmp isr_entry
+
 vector179: 
- pushq $0
- pushq $179
+ push $0
+ push $179
  jmp isr_entry
+
 vector180: 
- pushq $0
- pushq $180
+ push $0
+ push $180
  jmp isr_entry
+
 vector181: 
- pushq $0
- pushq $181
+ push $0
+ push $181
  jmp isr_entry
+
 vector182: 
- pushq $0
- pushq $182
+ push $0
+ push $182
  jmp isr_entry
+
 vector183: 
- pushq $0
- pushq $183
+ push $0
+ push $183
  jmp isr_entry
+
 vector184: 
- pushq $0
- pushq $184
+ push $0
+ push $184
  jmp isr_entry
+
 vector185: 
- pushq $0
- pushq $185
+ push $0
+ push $185
  jmp isr_entry
+
 vector186: 
- pushq $0
- pushq $186
+ push $0
+ push $186
  jmp isr_entry
+
 vector187: 
- pushq $0
- pushq $187
+ push $0
+ push $187
  jmp isr_entry
+
 vector188: 
- pushq $0
- pushq $188
+ push $0
+ push $188
  jmp isr_entry
+
 vector189: 
- pushq $0
- pushq $189
+ push $0
+ push $189
  jmp isr_entry
+
 vector190: 
- pushq $0
- pushq $190
+ push $0
+ push $190
  jmp isr_entry
+
 vector191: 
- pushq $0
- pushq $191
+ push $0
+ push $191
  jmp isr_entry
+
 vector192: 
- pushq $0
- pushq $192
+ push $0
+ push $192
  jmp isr_entry
+
 vector193: 
- pushq $0
- pushq $193
+ push $0
+ push $193
  jmp isr_entry
+
 vector194: 
- pushq $0
- pushq $194
+ push $0
+ push $194
  jmp isr_entry
+
 vector195: 
- pushq $0
- pushq $195
+ push $0
+ push $195
  jmp isr_entry
+
 vector196: 
- pushq $0
- pushq $196
+ push $0
+ push $196
  jmp isr_entry
+
 vector197: 
- pushq $0
- pushq $197
+ push $0
+ push $197
  jmp isr_entry
+
 vector198: 
- pushq $0
- pushq $198
+ push $0
+ push $198
  jmp isr_entry
+
 vector199: 
- pushq $0
- pushq $199
+ push $0
+ push $199
  jmp isr_entry
+
 vector200: 
- pushq $0
- pushq $200
+ push $0
+ push $200
  jmp isr_entry
+
 vector201: 
- pushq $0
- pushq $201
+ push $0
+ push $201
  jmp isr_entry
+
 vector202: 
- pushq $0
- pushq $202
+ push $0
+ push $202
  jmp isr_entry
+
 vector203: 
- pushq $0
- pushq $203
+ push $0
+ push $203
  jmp isr_entry
+
 vector204: 
- pushq $0
- pushq $204
+ push $0
+ push $204
  jmp isr_entry
+
 vector205: 
- pushq $0
- pushq $205
+ push $0
+ push $205
  jmp isr_entry
+
 vector206: 
- pushq $0
- pushq $206
+ push $0
+ push $206
  jmp isr_entry
+
 vector207: 
- pushq $0
- pushq $207
+ push $0
+ push $207
  jmp isr_entry
+
 vector208: 
- pushq $0
- pushq $208
+ push $0
+ push $208
  jmp isr_entry
+
 vector209: 
- pushq $0
- pushq $209
+ push $0
+ push $209
  jmp isr_entry
+
 vector210: 
- pushq $0
- pushq $210
+ push $0
+ push $210
  jmp isr_entry
+
 vector211: 
- pushq $0
- pushq $211
+ push $0
+ push $211
  jmp isr_entry
+
 vector212: 
- pushq $0
- pushq $212
+ push $0
+ push $212
  jmp isr_entry
+
 vector213: 
- pushq $0
- pushq $213
+ push $0
+ push $213
  jmp isr_entry
+
 vector214: 
- pushq $0
- pushq $214
+ push $0
+ push $214
  jmp isr_entry
+
 vector215: 
- pushq $0
- pushq $215
+ push $0
+ push $215
  jmp isr_entry
+
 vector216: 
- pushq $0
- pushq $216
+ push $0
+ push $216
  jmp isr_entry
+
 vector217: 
- pushq $0
- pushq $217
+ push $0
+ push $217
  jmp isr_entry
+
 vector218: 
- pushq $0
- pushq $218
+ push $0
+ push $218
  jmp isr_entry
+
 vector219: 
- pushq $0
- pushq $219
+ push $0
+ push $219
  jmp isr_entry
+
 vector220: 
- pushq $0
- pushq $220
+ push $0
+ push $220
  jmp isr_entry
+
 vector221: 
- pushq $0
- pushq $221
+ push $0
+ push $221
  jmp isr_entry
+
 vector222: 
- pushq $0
- pushq $222
+ push $0
+ push $222
  jmp isr_entry
+
 vector223: 
- pushq $0
- pushq $223
+ push $0
+ push $223
  jmp isr_entry
+
 vector224: 
- pushq $0
- pushq $224
+ push $0
+ push $224
  jmp isr_entry
+
 vector225: 
- pushq $0
- pushq $225
+ push $0
+ push $225
  jmp isr_entry
+
 vector226: 
- pushq $0
- pushq $226
+ push $0
+ push $226
  jmp isr_entry
+
 vector227: 
- pushq $0
- pushq $227
+ push $0
+ push $227
  jmp isr_entry
+
 vector228: 
- pushq $0
- pushq $228
+ push $0
+ push $228
  jmp isr_entry
+
 vector229: 
- pushq $0
- pushq $229
+ push $0
+ push $229
  jmp isr_entry
+
 vector230: 
- pushq $0
- pushq $230
+ push $0
+ push $230
  jmp isr_entry
+
 vector231: 
- pushq $0
- pushq $231
+ push $0
+ push $231
  jmp isr_entry
+
 vector232: 
- pushq $0
- pushq $232
+ push $0
+ push $232
  jmp isr_entry
+
 vector233: 
- pushq $0
- pushq $233
+ push $0
+ push $233
  jmp isr_entry
+
 vector234: 
- pushq $0
- pushq $234
+ push $0
+ push $234
  jmp isr_entry
+
 vector235: 
- pushq $0
- pushq $235
+ push $0
+ push $235
  jmp isr_entry
+
 vector236: 
- pushq $0
- pushq $236
+ push $0
+ push $236
  jmp isr_entry
+
 vector237: 
- pushq $0
- pushq $237
+ push $0
+ push $237
  jmp isr_entry
+
 vector238: 
- pushq $0
- pushq $238
+ push $0
+ push $238
  jmp isr_entry
+
 vector239: 
- pushq $0
- pushq $239
+ push $0
+ push $239
  jmp isr_entry
+
 vector240: 
- pushq $0
- pushq $240
+ push $0
+ push $240
  jmp isr_entry
+
 vector241: 
- pushq $0
- pushq $241
+ push $0
+ push $241
  jmp isr_entry
+
 vector242: 
- pushq $0
- pushq $242
+ push $0
+ push $242
  jmp isr_entry
+
 vector243: 
- pushq $0
- pushq $243
+ push $0
+ push $243
  jmp isr_entry
+
 vector244: 
- pushq $0
- pushq $244
+ push $0
+ push $244
  jmp isr_entry
+
 vector245: 
- pushq $0
- pushq $245
+ push $0
+ push $245
  jmp isr_entry
+
 vector246: 
- pushq $0
- pushq $246
+ push $0
+ push $246
  jmp isr_entry
+
 vector247: 
- pushq $0
- pushq $247
+ push $0
+ push $247
  jmp isr_entry
+
 vector248: 
- pushq $0
- pushq $248
+ push $0
+ push $248
  jmp isr_entry
+
 vector249: 
- pushq $0
- pushq $249
+ push $0
+ push $249
  jmp isr_entry
+
 vector250: 
- pushq $0
- pushq $250
+ push $0
+ push $250
  jmp isr_entry
+
 vector251: 
- pushq $0
- pushq $251
+ push $0
+ push $251
  jmp isr_entry
+
 vector252: 
- pushq $0
- pushq $252
+ push $0
+ push $252
  jmp isr_entry
+
 vector253: 
- pushq $0
- pushq $253
+ push $0
+ push $253
  jmp isr_entry
+
 vector254: 
- pushq $0
- pushq $254
+ push $0
+ push $254
  jmp isr_entry
+
 vector255: 
- pushq $0
- pushq $255
+ push $0
+ push $255
  jmp isr_entry
+
 .globl vectors
 vectors: 
 .quad vector0

@@ -32,3 +32,37 @@ int main(void){
 	}
 */	for (;;);
 }
+
+/*
+
+char *argv[] = {"sudoku", 0};
+
+int main(void){
+
+	int pid;
+
+	if (open("console", O_RDWR) < 0){
+		mknod("console", 1, 1);
+		open("console", O_RDWR);
+	}
+
+	dup(0);
+	dup(0);
+
+	printf("init starting \n");
+
+	pid = fork();
+	if (pid > 0){
+		printf("parent %d creating child %d\n", getpid(), pid);
+		pid = wait();
+		printf("child %d done \n", pid);
+	} else if (pid == 0){
+		exec("sudoku", argv);
+		printf("child %d exiting\n", getpid());
+		exit();
+	} else {
+		printf("fork error\n");
+	}
+	for (;;);
+}
+*/

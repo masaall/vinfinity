@@ -3,11 +3,12 @@
 
 #define DPL_USER 0x3
 
-#define PGUP(a)	(((a) + PGSIZE-1) & ~(PGSIZE-1))
-#define PGDN(a)	((a) & ~(PGSIZE-1))
+#define PGUP(a)	(((uintptr_t)(a) + 0xfff) & ~0xfff)
+#define PGDN(a)	((uintptr_t)(a) & ~0xfff)
 
 #define PGSIZE  0x1000
 #define HPGSIZE 0x200000
+#define HHPGSIZE 0x40000000
 #define NENTRIES 512
 
 #define PTE_P	0x001
@@ -30,8 +31,8 @@
  		(offset)							|			\
  		0xffff000000000000)
 
-#define PG_ADDR(a) 	((a) & ~0xfff)
-#define PG_FLAG(a)	((a) &  0xfff)
+#define PG_ADDR(a) 	((uintptr_t)(a) & ~0xfff)
+#define PG_FLAG(a)	((uintptr_t)(a) &  0xfff)
 
 #define PML5SHIFT 48
 #define PML4SHIFT 39

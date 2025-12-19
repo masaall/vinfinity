@@ -36,10 +36,10 @@ int main(void){
 	cls();
 	uartinit();
 
-	kinit1(end, P2V(0x400000));
+	kinit1(end, P2V(0x600000));
 	kvminit();
 	mpinit();
-	lapicinit();
+//	lapicinit();
 	gdtinstall();
 	picinit();
 	ioapicinit();
@@ -52,8 +52,8 @@ int main(void){
 	cprintf("\n                         vinfinity operating system");
 	cprintf("\n                                version 0.01     \n");	
 	startothers();
-	kinit2(P2V(0x400000), P2V(PHYSTOP));
-	userinit();
+	kinit2(P2V(0x600000), P2V(PHYSTOP));
+	userinit();	
 	mpmain();
 
 	panic("end main");
@@ -122,4 +122,5 @@ __attribute__((__aligned__(PGSIZE)))
 uintptr_t entrypgdir[512] = {
 	[0] = 0x00000000 | PTE_P | PTE_W | PTE_PS,
 	[1] = 0x00200000 | PTE_P | PTE_W | PTE_PS,
+	[2] = 0x00400000 | PTE_P | PTE_W | PTE_PS,
 };

@@ -83,16 +83,17 @@ _%:%.o $(ULIB)
 UPROGS :=\
 		_init\
 		_sh\
+		_sudoku\
 
 mkfs: mkfs.c
 	gcc -Werror -o mkfs mkfs.c
 
 fs.img: mkfs $(UPROGS)
-	./mkfs fs.img $(UPROGS)					
+	./mkfs fs.img $(UPROGS)
 
 qemu: vin.img fs.img
 #	qemu-system-x86_64 -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
-	qemu-system-x86_64 -cpu qemu64,+la57,+lm -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw
+	qemu-system-x86_64 -cpu qemu64,+la57,+lm -serial mon:stdio -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw -m 512M
 
 qemu1: vin.img fs.img
 #	qemu-system-x86_64 -serial mon:stdio -smp 2,cores=1 -drive file=fs.img,index=1,media=disk,format=raw -drive file=vin.img,index=0,media=disk,format=raw

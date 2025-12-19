@@ -103,7 +103,6 @@ int sys_open(void){
 	if ((ip = namei(path)) == 0){
 			return -1;
 	}
-
 	ilock(ip);
 
 	if ((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){

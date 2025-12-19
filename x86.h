@@ -56,7 +56,9 @@ static inline uintptr_t rcr2(void){
 
 static inline uintptr_t readrflags(void){
 	uintptr_t flags;
-	asm volatile("pushfq; popq %0" : "=r" (flags));
+	asm volatile("pushfq;\
+				  mov (%%rsp),%0;\
+				  add $8,%%rsp" : "=r" (flags));
 	return flags;
 }
 
@@ -79,11 +81,16 @@ static inline void wrmsr(uint32_t msr, uint64_t data){
 
 	uint32_t hi, lo;
 
-	hi = data >> 32;
-	lo = data;
-	asm volatile("wrmsr"
-				:: "c" (msr),
-				 "d" (hi), "a" (lo));
+	asm volatile("rdmsr"
+				: "=d" (hi), "=a" (lo)
+				: "c" (msr));
+
+	hi |= data >> 32;
+	lo |= data;
+
+	asm volatile("wrmsr" 
+				:: "c" (msr), "d" (hi), "a" (lo));
+
 }
 
 static inline uint64_t rdmsr(uint32_t msr){

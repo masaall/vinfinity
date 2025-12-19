@@ -15,7 +15,7 @@
 struct idt {
 	uint16_t off_low;
 	uint16_t sel;
-	uint8_t zero;
+	uint8_t ist;
 	uint8_t type;
 	uint16_t off_mid;
 	uint32_t off_high;
@@ -26,7 +26,7 @@ struct regs {
 	uintptr_t r15, r14, r13, r12, r11, r10, r9, r8;
 	uintptr_t rbp, rdi, rsi, rdx, rcx, rbx, rax;
 	uintptr_t no, error;
-	uintptr_t rip, cs, rflags, rsp, ss;	
+	uintptr_t rip, cs, rflags, rsp, ss;
 };
 
 #endif

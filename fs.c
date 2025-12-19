@@ -35,8 +35,8 @@ void iinit(uint32_t dev){
 		initsleeplock(&icache.inode[i].lock, "inode");
 
 	readsb(dev);
-	cprintf("sb: size %d nblock %d ninode %d nlog %d logstart %d inodestart %d bmapstart %d\n",
-		 sb.size, sb.nblock, sb.ninode, sb.nlog, sb.logstart, sb.inodestart, sb.bmapstart);	 
+//	cprintf("sb: size %d nblock %d ninode %d nlog %d logstart %d inodestart %d bmapstart %d\n",
+//		 sb.size, sb.nblock, sb.ninode, sb.nlog, sb.logstart, sb.inodestart, sb.bmapstart);	 
 }
 
 struct inode *iget(uint32_t dev, uint32_t inum){
@@ -260,7 +260,7 @@ struct inode *dirlookup(struct inode *ip, char *name){
 	for (off = 0; off < ip->size; off += sizeof(de)){
 		if (readi(ip, &de, off, sizeof(de)) != sizeof(de))
 			panic("dirlookup");
-		if (de.inum == 0) continue;	
+		if (de.inum == 0) continue;
 		if (namecmp(name, de.name) == 0){
 			return iget(ip->dev, de.inum);
 		}

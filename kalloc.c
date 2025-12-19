@@ -13,7 +13,7 @@ struct block {
 	struct block *next;
 };
 
-static struct {
+struct {
 	struct spinlock lock;
 	struct block *head;
 	struct block *tail;
@@ -32,10 +32,9 @@ void kinit2(void *start, void *end){
 }
 
 void freerange(char *start, char *end){
-
-	start = (void*)PGUP((uintptr_t)start);
+	start = (void*)PGUP(start);
 	for (; start + PGSIZE <= end; start += PGSIZE)
-		kfree(start);
+		kfree(start);	
 }
 
 void kfree(void *v){
@@ -46,16 +45,15 @@ void kfree(void *v){
 		acquire(&kmem.lock);
 
 	if ((uintptr_t)v % PGSIZE || (char*)v < end || V2P(v) >= PHYSTOP)
-		panic("kfree");	
+		panic("kfree");
 
 	b = v;
 	b->next = NULL;
 	if (kmem.tail){
 		kmem.tail->next = b;
 		kmem.tail = b;
-	} else {
+	} else 
 		kmem.head = kmem.tail = b;
-	}
 
 	if (kmem.use_lock)
 		release(&kmem.lock);
@@ -76,6 +74,7 @@ void *kalloc(void){
 
 	b = kmem.head;
 	kmem.head = b->next;
+	memset(b, 0, PGSIZE);
 
 	if (kmem.head == NULL)
 		kmem.tail = NULL;
@@ -91,10 +90,10 @@ void getcallerpcs(uintptr_t *rbp, uintptr_t *pcs){
 	int i;
 
 	for (i = 0; i < 10; i++){
-		if (rbp == NULL || rbp < (uintptr_t*)KERNBASE)
+		if (rbp == NULL || (uintptr_t)rbp < KERNBASE)
 			break;
 		pcs[i] = rbp[1];
-		rbp = (uintptr_t*)rbp[0];
+		rbp = (void*)rbp[0];
 	}
 	for (; i < 10; i++)
 		pcs[i] = 0;

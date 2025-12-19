@@ -17,9 +17,34 @@
 extern char data[];
 uintptr_t *kpml5t;
 
-uintptr_t *walk_user_page(uintptr_t *pml5t, uintptr_t vaddr){
+uintptr_t *walk_user(uintptr_t *pml5t, uintptr_t vaddr){
 
 	uintptr_t *pml4t, *pdpt, *pgdir, *pgtab;
+	uint16_t pml5x = PML5X(vaddr);
+	uint16_t pml4x = PML4X(vaddr);
+	uint16_t pdpx = PDPX(vaddr);
+	uint16_t pdx = PDX(vaddr);
+	uint16_t ptx = PTX(vaddr);
+
+	if (!(pml5t[pml5x] & PTE_P))
+		return 0;
+	pml4t = P2V(PG_ADDR(pml5t[pml5x]));
+	if (!(pml4t[pml4x] & PTE_P))
+		return 0;
+	pdpt = P2V(PG_ADDR(pml4t[pml4x]));
+	if (!(pdpt[pdpx] & PTE_P))
+		return 0;	
+	pgdir = P2V(PG_ADDR(pdpt[pdpx]));
+	if (!(pgdir[pdx] & PTE_P))
+		return 0;	
+	pgtab = P2V(PG_ADDR(pgdir[pdx]));
+
+	return &pgtab[ptx];
+}
+
+uintptr_t *walk_kernel(uintptr_t *pml5t, uintptr_t vaddr){
+
+	uintptr_t *pml4t, *pdpt, *pgdir;
 	uint16_t pml5x = PML5X(vaddr);
 	uint16_t pml4x = PML4X(vaddr);
 	uint16_t pdpx = PDPX(vaddr);
@@ -34,31 +59,8 @@ uintptr_t *walk_user_page(uintptr_t *pml5t, uintptr_t vaddr){
 	if (!(pdpt[pdpx] & PTE_P))
 		return 0;
 	pgdir = P2V(PG_ADDR(pdpt[pdpx]));
-	if (!(pgdir[pdx] & PTE_P))
-		return 0;
-	pgtab = P2V(PG_ADDR(pgdir[pdx]));
 
-	return &pgtab[PTX(vaddr)];
-}
-
-uintptr_t *walk_kernel_page(uintptr_t *pml5t, uintptr_t vaddr){
-
-	uintptr_t *pml4t, *pdpt, *pgdir;
-	uint16_t pml5x = PML5X(vaddr);
-	uint16_t pml4x = PML4X(vaddr);
-	uint16_t pdpx = PDPX(vaddr);
-
-	if (!(pml5t[pml5x] & PTE_P))
-		return 0;
-	pml4t = P2V(PG_ADDR(pml5t[pml5x]));
-	if (!(pml4t[pml4x] & PTE_P))
-		return 0;
-	pdpt = P2V(PG_ADDR(pml4t[pml4x]));
-	if (!(pdpt[pdpx] & PTE_P))
-		return 0;
-	pgdir = P2V(PG_ADDR(pdpt[pdpx]));
-
-	return &pgdir[PDX(vaddr)];
+	return &pgdir[pdx];
 }
 
 int map_user(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
@@ -83,7 +85,7 @@ int map_user(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
 			pml5t[pml5x] = V2P(pml4t) | PTE_P | PTE_W | PTE_U;
 		} else
 			pml4t = P2V(PG_ADDR(pml5t[pml5x]));
-			
+
 		if (!(pml4t[pml4x] & PTE_P)){
 			pdpt = kalloc();
 			if (!pdpt) return -1;
@@ -91,15 +93,15 @@ int map_user(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
 			pml4t[pml4x] = V2P(pdpt) | PTE_P | PTE_W | PTE_U;
 		} else
 			pdpt = P2V(PG_ADDR(pml4t[pml4x]));
-		
+
 		if (!(pdpt[pdpx] & PTE_P)){
 			pgdir = kalloc();
 			if (!pgdir) return -1;
 			memset(pgdir, 0, PGSIZE);
 			pdpt[pdpx] = V2P(pgdir) | PTE_P | PTE_W | PTE_U;
 		} else
-		pgdir = P2V(PG_ADDR(pdpt[pdpx]));
-		
+			pgdir = P2V(PG_ADDR(pdpt[pdpx]));
+
 		if (!(pgdir[pdx] & PTE_P)){
 			pgtab = kalloc();
 			if (!pgtab) return -1;
@@ -107,10 +109,10 @@ int map_user(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
 			pgdir[pdx] = V2P(pgtab) | PTE_P | PTE_W | PTE_U;
 		} else
 			pgtab = P2V(PG_ADDR(pgdir[pdx]));
-		
+
 		if (pgtab[ptx] & PTE_P) 
 			panic("map_user remap");
-			
+
 		pgtab[ptx] = paddr | flags;
 	}
 
@@ -147,7 +149,7 @@ int map_kernel(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
 			pml4t[pml4x] = V2P(pdpt) | PTE_P | PTE_W;
 		} else
 			pdpt = P2V(PG_ADDR(pml4t[pml4x]));
-		
+
 		if (!(pdpt[pdpx] & PTE_P)){
 			pgdir = kalloc();
 			if (!pgdir) return -1;
@@ -155,11 +157,11 @@ int map_kernel(uintptr_t *pml5t, uintptr_t vaddr, uintptr_t paddr,
 			pdpt[pdpx] = V2P(pgdir) | PTE_P | PTE_W;
 		} else
 			pgdir = P2V(PG_ADDR(pdpt[pdpx]));
-		
+
 		if (pgdir[pdx] & PTE_P)
 			panic("map_kernel remap");
-		
-		pgdir[pdx] = paddr | flags;		
+
+		pgdir[pdx] = paddr | flags;
 	}
 
 	return 0;
@@ -170,7 +172,7 @@ struct kmap {
 	uintptr_t paddr;
 	uintptr_t size;
 	uint8_t flags;
-} map[] = {
+} kmap[] = {
 	{KERNBASE, 0, PHYSTOP, PTE_P | PTE_W | PTE_PS},
 	{KERNDEV, DEVSPACE, 0x1000000, PTE_P | PTE_W | PTE_PS}
 };
@@ -184,12 +186,11 @@ uintptr_t *setupkvm(void){
 		return 0;
 
 	memset(pml5t, 0, PGSIZE);
-	for (k = map; k < &map[NELEM(map)]; k++){
+	for (k = kmap; k < &kmap[NELEM(kmap)]; k++)
 		if (map_kernel(pml5t, k->vaddr, k->paddr, k->size, k->flags) < 0){
 			freevm(pml5t);
 			return 0;
 		}
-	}	
 
 	return pml5t;
 }
@@ -200,12 +201,8 @@ void switchkvm(void){
 
 void switchuvm(struct proc *p){
 
-	if (p == 0)
+	if (p == 0 || p->kstack == 0 || p->pml5t == 0)
 		panic("switchuvm");
-	if (p->kstack == 0)
-		panic("switchuvm");
-	if (p->pml5t == 0)
-		panic("switchuvm");	
 
 	pushcli();
 	tssinstall(p);
@@ -222,8 +219,8 @@ void inituvm(uintptr_t *pml5t, void *init, uintptr_t size){
 
 	char *paddr = kalloc();
 	memset(paddr, 0, PGSIZE);
+	memmove(paddr, init, size);	
 	map_user(pml5t, 0, V2P(paddr), PGSIZE, PTE_P|PTE_W|PTE_U);
-	memmove(paddr, init, size);
 }
 
 uintptr_t *copyuvm(uintptr_t *pml5t, uintptr_t size){
@@ -236,7 +233,7 @@ uintptr_t *copyuvm(uintptr_t *pml5t, uintptr_t size){
 	if ((npml5t = setupkvm()) == 0)
 		return 0;
 	for (vaddr = 0; vaddr < size; vaddr += PGSIZE){
-		if ((pte = walk_user_page(pml5t, vaddr)) == 0)
+		if ((pte = walk_user(pml5t, vaddr)) == 0)
 			panic("copyuvm: pte should exist");
 		paddr = PG_ADDR(*pte);
 		flags = PG_FLAG(*pte);
@@ -315,7 +312,7 @@ uintptr_t deallocuvm(uintptr_t *pml5t, uintptr_t oldsz, uintptr_t newsz){
 
 	vaddr = newsz;
 	for (; vaddr < oldsz; vaddr += PGSIZE){
-		pte = walk_user_page(pml5t, vaddr);
+		pte = walk_user(pml5t, vaddr);
 		if (!pte)
 			vaddr = pgaddr(PML5X(vaddr), PML4X(vaddr), PDPX(vaddr), 
 					PDX(vaddr) + 1, 0, 0) - PGSIZE;					
@@ -380,7 +377,7 @@ int loaduvm(uintptr_t *pml5t, struct inode *ip,
 	if ((uintptr_t)vaddr % PGSIZE != 0)
 		panic("loaduvm: vaddr must be page aligned");
 	for (i = 0; i < size; i += PGSIZE){
-		if ((pte = walk_user_page(pml5t, vaddr+i)) == 0)
+		if ((pte = walk_user(pml5t, vaddr+i)) == 0)
 			panic("loaduvm: address should exist");
 
 		paddr = PG_ADDR(*pte);
