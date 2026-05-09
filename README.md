@@ -23,3 +23,4 @@ A 64-bit operating system built from scratch.
 ## Screenshot
 
 ### Process Management Demo ('fork', 'wait', 'exit')
+![fork() wait() exit() Demo](screenshots/scr1.png)
